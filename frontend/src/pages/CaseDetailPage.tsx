@@ -6,7 +6,7 @@ import { ApiError } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { RoleGate } from "../components/RoleGate";
 import { StatusBadge } from "../components/StatusBadge";
-import { AlertCard } from "../components/AlertCard";
+import { AlertsTable } from "../components/alerts/AlertsTable";
 import { Timeline } from "../components/Timeline";
 import { NotesThread } from "../components/NotesThread";
 import { AuditTable } from "../components/AuditTable";
@@ -184,16 +184,7 @@ export function CaseDetailPage() {
         </nav>
 
           <div className="u-enter pt-5">
-            {tab === "alerts" && (
-              <div className="u-stagger space-y-3">
-                {c.alerts.map((a) => (
-                  <AlertCard key={a.id} alert={a} />
-                ))}
-                {c.alerts.length === 0 && (
-                  <p className="text-sm text-ink-tertiary">No alerts in this case.</p>
-                )}
-              </div>
-            )}
+            {tab === "alerts" && <AlertsTable alerts={c.alerts} />}
             {tab === "timeline" && <Timeline entries={c.timeline} />}
             {tab === "notes" && <NotesThread caseId={c.id} notes={c.notes} />}
             {tab === "audit" && <AuditTable caseId={c.id} entries={c.timeline} />}

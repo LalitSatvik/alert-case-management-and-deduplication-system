@@ -31,7 +31,7 @@ it("shows grouping rationale and hides mutations for readonly", async () => {
   global.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify(CASE), { status: 200 }));
   render(wrap());
   await waitFor(() => expect(screen.getByText("CASE-1")).toBeInTheDocument());
-  expect(screen.getByText(/same-txn-dispute/)).toBeInTheDocument();
+  expect(screen.getByText("Deterministic")).toBeInTheDocument();
   expect(screen.getByText(/0\.81/)).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /move to in progress/i })).not.toBeInTheDocument();
 });
