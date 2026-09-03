@@ -8,7 +8,7 @@ import {
 import { cn } from "./cn";
 
 const CONTROL =
-  "min-h-control w-full rounded-lg border border-border bg-surface px-3 text-sm text-ink shadow-xs " +
+  "min-h-control w-full rounded-md border border-border bg-surface px-3 text-sm text-ink shadow-xs " +
   "transition-colors placeholder:text-ink-muted hover:border-border-strong " +
   "focus-visible:border-ink focus-visible:outline-none disabled:opacity-40";
 

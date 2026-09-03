@@ -46,7 +46,7 @@ export function AuditTable({ caseId, entries }: { caseId: string; entries: Timel
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Badge tone={pill.tone} dot uppercase>
+        <Badge tone={pill.tone} dot>
           {pill.text}
         </Badge>
         <div className="ml-auto flex gap-1">
