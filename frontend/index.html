@@ -7,6 +7,15 @@
     <meta name="theme-color" content="#0c1118" media="(prefers-color-scheme: dark)" />
     <meta name="color-scheme" content="light dark" />
     <title>ACMS — Investigator Console</title>
+    <script>
+      // Apply saved theme / density before first paint to avoid a flash.
+      try {
+        var t = localStorage.getItem("acms.theme");
+        if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t);
+        var d = localStorage.getItem("acms.density");
+        if (d === "compact" || d === "dense") document.documentElement.setAttribute("data-density", d);
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
