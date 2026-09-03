@@ -11,7 +11,7 @@ import { alertFields } from "./alertFields";
 
 // One template drives the header and every row so columns stay aligned.
 const GRID =
-  "grid grid-cols-[1.25rem_4.5rem_minmax(9rem,1.4fr)_6.5rem_minmax(7rem,1fr)_minmax(8rem,1fr)_minmax(7rem,1fr)_minmax(6rem,1fr)_auto_4.5rem_4.75rem] items-center gap-x-3";
+  "grid grid-cols-[1rem_3.5rem_minmax(6rem,1fr)_6.5rem_minmax(5.5rem,0.9fr)_minmax(7rem,1fr)_minmax(6rem,0.9fr)_8rem_6.5rem_5rem_4rem] items-center gap-x-2.5";
 
 function Chevron({ open }: { open: boolean }) {
   return (
@@ -40,6 +40,16 @@ function Stacked({ top, bottom }: { top?: string | null; bottom?: string | null 
 
 const HEAD = "text-2xs font-semibold uppercase tracking-wider text-ink-tertiary";
 
+// Short codes keep the typology column tight; full name stays in the tooltip + detail panel.
+const TYPOLOGY_CODE: Record<string, string> = {
+  "account-takeover": "ATO",
+  structuring: "STRUCT",
+  layering: "LAYER",
+  "card-testing": "CARD-T",
+  "mule-network": "MULE",
+};
+const typoCode = (t: string) => TYPOLOGY_CODE[t] ?? t.toUpperCase();
+
 export function AlertsTable({ alerts }: { alerts: AlertOut[] }) {
   const [open, setOpen] = useState<Set<string>>(new Set());
   const [compareBase, setCompareBase] = useState<string | null>(null);
@@ -59,7 +69,7 @@ export function AlertsTable({ alerts }: { alerts: AlertOut[] }) {
   return (
     <>
       <div className="overflow-x-auto rounded-md border border-border bg-surface">
-        <div className="min-w-[64rem]">
+        <div className="min-w-[52rem]">
           <div
             className={cn(
               GRID,
@@ -107,30 +117,32 @@ export function AlertsTable({ alerts }: { alerts: AlertOut[] }) {
                       <span className="text-ink-tertiary">—</span>
                     )}
                   </span>
-                  <span className="flex min-w-0 items-baseline gap-2">
-                    <span className="truncate font-mono font-medium text-ink">
-                      {a.external_alert_id}
-                    </span>
-                    {a.source_system && (
-                      <span className="shrink-0 text-2xs text-ink-tertiary">{a.source_system}</span>
-                    )}
+                  <span className="min-w-0 truncate font-mono font-medium text-ink">
+                    {a.external_alert_id}
                   </span>
-                  <span className="text-right font-mono tabular-nums">
-                    <span className="block truncate">{a.amount}</span>
-                    <span className="block text-2xs text-ink-tertiary">
-                      {a.currency}
-                      {a.direction ? ` · ${a.direction}` : ""}
+                  <span className="whitespace-nowrap text-right font-mono tabular-nums">
+                    <span className="block">
+                      {a.amount} <span className="text-2xs text-ink-tertiary">{a.currency}</span>
                     </span>
+                    {a.direction && (
+                      <span className="block font-sans text-2xs text-ink-tertiary">
+                        {a.direction}
+                      </span>
+                    )}
                   </span>
                   <Stacked top={a.customer_ref} bottom={a.counterparty_ref} />
                   <Stacked top={a.merchant_name} bottom={a.mcc} />
                   <Stacked top={a.device_id} bottom={a.ip_address} />
-                  <span className="flex flex-wrap gap-1">
-                    {(a.typologies ?? []).map((t) => (
-                      <Badge key={t} tone="warning">
-                        {t}
-                      </Badge>
-                    ))}
+                  <span className="flex min-w-0 flex-wrap items-center gap-1" title={(a.typologies ?? []).join(", ")}>
+                    {a.typologies?.length ? (
+                      a.typologies.map((t) => (
+                        <Badge key={t} tone="warning">
+                          {typoCode(t)}
+                        </Badge>
+                      ))
+                    ) : (
+                      <span className="text-ink-tertiary">—</span>
+                    )}
                   </span>
                   <span onClick={(e) => e.stopPropagation()}>
                     <GroupingBadge grouping={a.grouping} />

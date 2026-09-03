@@ -32,7 +32,7 @@ export function CaseListPage() {
     staleTime: 5 * 60_000,
     retry: false,
   });
-  const users = usersQuery.data ?? [];
+  const users = Array.isArray(usersQuery.data) ? usersQuery.data : [];
 
   const casesQuery = useInfiniteQuery({
     queryKey: ["cases", query],
