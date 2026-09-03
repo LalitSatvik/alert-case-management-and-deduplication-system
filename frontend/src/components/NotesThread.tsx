@@ -5,6 +5,8 @@ import { ApiError } from "../api/client";
 import { addNote, retractNote } from "../api/cases";
 import { useAuth } from "../auth/AuthContext";
 import { RoleGate } from "./RoleGate";
+import { Button } from "./ui/Button";
+import { Textarea } from "./ui/Field";
 import { relativeTime } from "../lib/format";
 
 function errText(err: unknown, fallback: string): string {
@@ -40,44 +42,41 @@ export function NotesThread({ caseId, notes }: { caseId: string; notes: NoteOut[
   }
 
   return (
-    <div className="space-y-4">
-      <ul className="u-stagger space-y-3">
+    <div className="max-w-2xl space-y-4">
+      <ul className="space-y-2">
         {sorted.map((n) => (
-          <li key={n.id} className="rounded-lg border border-border bg-surface p-3 shadow-xs">
-            <p
-              className={
-                n.retracted
-                  ? "text-sm text-ink-tertiary line-through"
-                  : "text-sm text-ink"
-              }
-            >
+          <li
+            key={n.id}
+            className="rounded-md border border-border border-l-2 border-l-info bg-surface p-2.5"
+          >
+            <p className={n.retracted ? "text-sm text-ink-tertiary line-through" : "text-sm text-ink"}>
               {n.body}
             </p>
-            <div className="mt-1.5 flex items-center gap-2 text-xs text-ink-tertiary">
+            <div className="mt-1 flex items-center gap-2 text-2xs text-ink-tertiary">
               <span className="font-mono">{n.author_id}</span>
               <span aria-hidden="true">·</span>
               <span>{relativeTime(n.created_at)}</span>
+              {!n.retracted && (
+                <RoleGate allow={["analyst", "admin"]}>
+                  <button
+                    type="button"
+                    className="ml-auto font-medium text-ink-danger hover:underline"
+                    onClick={() => {
+                      const reason = window.prompt("Reason for retraction?");
+                      if (reason && reason.trim()) {
+                        retract.mutate({ noteId: n.id, reason: reason.trim() });
+                      }
+                    }}
+                  >
+                    Retract
+                  </button>
+                </RoleGate>
+              )}
             </div>
             {n.retracted && (
-              <p className="mt-1 text-xs text-ink-danger">
+              <p className="mt-1 text-2xs text-ink-danger">
                 Retracted{n.retraction_reason ? `: ${n.retraction_reason}` : ""}
               </p>
-            )}
-            {!n.retracted && (
-              <RoleGate allow={["analyst", "admin"]}>
-                <button
-                  type="button"
-                  className="mt-1 -mx-2 inline-flex min-h-control items-center rounded-sm px-2 text-xs font-medium text-ink-danger hover:underline"
-                  onClick={() => {
-                    const reason = window.prompt("Reason for retraction?");
-                    if (reason && reason.trim()) {
-                      retract.mutate({ noteId: n.id, reason: reason.trim() });
-                    }
-                  }}
-                >
-                  Retract
-                </button>
-              </RoleGate>
             )}
           </li>
         ))}
@@ -92,22 +91,17 @@ export function NotesThread({ caseId, notes }: { caseId: string; notes: NoteOut[
 
       <RoleGate allow={["analyst", "admin"]}>
         <form onSubmit={submit} className="space-y-2">
-          <textarea
+          <Textarea
             aria-label="Add a note"
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={3}
-            className="w-full rounded-md border border-border bg-surface p-2.5 text-sm text-ink shadow-xs transition-colors placeholder:text-ink-muted hover:border-border-strong focus-visible:border-accent"
             placeholder="Add an investigation note…"
           />
           <div className="flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={!body.trim() || add.isPending}
-              className="inline-flex min-h-control items-center rounded-md bg-accent px-3.5 text-sm font-medium text-accent-fg shadow-xs transition-colors hover:bg-accent-hover disabled:opacity-40"
-            >
+            <Button type="submit" variant="primary" size="sm" disabled={!body.trim() || add.isPending}>
               Add note
-            </button>
+            </Button>
             {add.isError && (
               <span role="alert" className="text-sm text-ink-danger">
                 {errText(add.error, "Could not add note")}

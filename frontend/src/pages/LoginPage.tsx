@@ -2,9 +2,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { ApiError } from "../api/client";
-
-const field =
-  "mt-1.5 min-h-control w-full rounded-md border border-border bg-surface px-3 text-sm text-ink shadow-xs transition-colors placeholder:text-ink-muted hover:border-border-strong focus-visible:border-accent";
+import { Button } from "../components/ui/Button";
+import { TextInput, FieldLabel } from "../components/ui/Field";
 
 export function LoginPage() {
   const { login, principal } = useAuth();
@@ -36,18 +35,16 @@ export function LoginPage() {
     <div className="evidence-grid relative flex min-h-screen items-center justify-center px-4 text-ink">
       <form
         onSubmit={onSubmit}
-        className="u-enter-soft w-full max-w-sm space-y-5 rounded-xl border border-border bg-surface p-7 shadow-lg"
+        className="u-enter-soft w-full max-w-sm space-y-5 rounded-lg border border-border border-t-2 border-t-accent bg-surface p-6 shadow-md"
       >
-        <div className="space-y-1.5">
-          <h1 className="font-mono text-lg font-semibold tracking-[0.14em] text-ink">ACMS</h1>
-          <p className="text-sm text-ink-tertiary">Sign in to the investigator console</p>
+        <div className="space-y-1">
+          <h1 className="font-mono text-sm font-bold uppercase tracking-[0.22em] text-ink">ACMS</h1>
+          <p className="text-xs text-ink-tertiary">Investigator console — sign in</p>
         </div>
 
-        <label className="block text-sm">
-          <span className="text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
-            Email
-          </span>
-          <input
+        <label className="block">
+          <FieldLabel>Email</FieldLabel>
+          <TextInput
             type="email"
             name="email"
             autoComplete="username"
@@ -56,22 +53,20 @@ export function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className={`${field} font-mono`}
+            className="mt-1 font-mono"
           />
         </label>
 
-        <label className="block text-sm">
-          <span className="text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
-            Password
-          </span>
-          <input
+        <label className="block">
+          <FieldLabel>Password</FieldLabel>
+          <TextInput
             type="password"
             name="password"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className={field}
+            className="mt-1"
           />
         </label>
 
@@ -84,13 +79,9 @@ export function LoginPage() {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="inline-flex min-h-control w-full items-center justify-center rounded-md bg-accent px-3 text-sm font-medium text-accent-fg shadow-xs transition-colors hover:bg-accent-hover disabled:opacity-40"
-        >
+        <Button type="submit" variant="primary" disabled={busy} className="w-full">
           {busy ? "Signing in…" : "Sign in"}
-        </button>
+        </Button>
       </form>
     </div>
   );
