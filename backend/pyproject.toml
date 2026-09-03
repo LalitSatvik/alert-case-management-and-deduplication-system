@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+# Only `app` is an importable package. `alembic/`, `scripts/`, `tests/`,
+# `config/`, `schemas/` are run by path, not imported — exclude them so
+# setuptools' flat-layout auto-discovery doesn't error on multiple top levels.
+include = ["app*"]
+
+[project]
+name = "acms-backend"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.32",
+  "pydantic>=2.9",
+  "pydantic-settings>=2.5",
+  "sqlalchemy[asyncio]>=2.0.35",
+  "asyncpg>=0.30",
+  "alembic>=1.13",
+  "redis>=5.1",
+  "arq>=0.26",
+  "argon2-cffi>=23.1",
+  "pyjwt>=2.9",
+  "email-validator>=2.2",
+  "rapidfuzz>=3.10",
+  "structlog>=24.4",
+  "prometheus-client>=0.21",
+  "python-multipart>=0.0.12",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.3",
+  "pytest-asyncio>=0.24",
+  "httpx>=0.27",
+  "ruff>=0.7",
+  "black>=24.10",
+  "mypy>=1.13",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+# Every async fixture and test runs on the same per-function event loop. The
+# db_engine / db_session / app_client / seed_user fixtures are all function-scoped
+# (transaction-rollback isolation), so "function" keeps the loop consistent with
+# them and with the pre-existing function-scoped async fixtures/tests. The sync
+# test_db / migrated_db fixtures keep using asyncio.run() and are unaffected.
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = [
+  "infra: requires a local PostgreSQL 16 (superuser) and Redis 7 on default ports",
+  "e2e: end-to-end smoke test against the full docker compose stack; set ACMS_E2E=1 to run",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint.per-file-ignores]
+# Alembic revision files are machine-generated: they carry the stock
+# ``from alembic import op`` / ``import sqlalchemy as sa`` header (often unused in
+# a given revision) and autogenerate appends model-type imports after it.
+"alembic/versions/*.py" = ["F401", "I001"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.mypy]
+python_version = "3.11"
+plugins = ["pydantic.mypy"]
+strict = true

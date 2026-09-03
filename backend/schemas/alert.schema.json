@@ -1,0 +1,199 @@
+{
+  "description": "Canonical inbound alert schema.",
+  "properties": {
+    "account_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Account Ref"
+    },
+    "amount": {
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,14}|(?=[\\d.]{1,19}0*$)\\d{0,14}\\.\\d{0,4}0*$)",
+          "type": "string"
+        }
+      ],
+      "title": "Amount"
+    },
+    "counterparty_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Counterparty Ref"
+    },
+    "currency": {
+      "maxLength": 3,
+      "minLength": 3,
+      "pattern": "^[A-Z]{3}$",
+      "title": "Currency",
+      "type": "string"
+    },
+    "customer_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Customer Ref"
+    },
+    "device_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Device Id"
+    },
+    "direction": {
+      "enum": [
+        "inbound",
+        "outbound",
+        "internal"
+      ],
+      "title": "Direction",
+      "type": "string"
+    },
+    "event_time": {
+      "format": "date-time",
+      "title": "Event Time",
+      "type": "string"
+    },
+    "external_alert_id": {
+      "title": "External Alert Id",
+      "type": "string"
+    },
+    "ground_truth_group_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ground Truth Group Id"
+    },
+    "ip_address": {
+      "anyOf": [
+        {
+          "format": "ipvanyaddress",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ip Address"
+    },
+    "mcc": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mcc"
+    },
+    "merchant_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Merchant Name"
+    },
+    "raw_payload": {
+      "additionalProperties": true,
+      "title": "Raw Payload",
+      "type": "object"
+    },
+    "risk_score": {
+      "anyOf": [
+        {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Risk Score"
+    },
+    "rule_codes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Rule Codes",
+      "type": "array"
+    },
+    "session_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Session Id"
+    },
+    "source_system": {
+      "title": "Source System",
+      "type": "string"
+    },
+    "typologies": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Typologies",
+      "type": "array"
+    }
+  },
+  "required": [
+    "external_alert_id",
+    "source_system",
+    "event_time",
+    "amount",
+    "currency",
+    "direction"
+  ],
+  "title": "AlertIn",
+  "type": "object"
+}

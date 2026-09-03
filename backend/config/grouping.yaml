@@ -1,0 +1,13 @@
+# backend/config/grouping.yaml
+similarity_threshold: 0.72
+candidate_cap: 500
+time_tau_seconds: 10800
+risk_aggregation: max
+weights: { time: 0.20, amount: 0.20, name: 0.20, device: 0.15, ip: 0.10, typology: 0.15 }
+dispositions: ["No action", "Escalate", "Confirmed fraud", "Confirmed AML concern", "Duplicate"]
+rules:
+  - { id: same-txn-dispute,        enabled: true, blocking_keys: [account_ref], time_window_seconds: 86400,  amount_tolerance: 0.0,  match_keys: [account_ref, amount, counterparty_ref], weight: 1.0 }
+  - { id: same-customer-72h,       enabled: true, blocking_keys: [customer_ref], time_window_seconds: 259200, amount_tolerance: 1.0, match_keys: [customer_ref], weight: 0.6 }
+  - { id: card-testing-burst,      enabled: true, blocking_keys: [device_id],    time_window_seconds: 1800,   amount_tolerance: 0.10, match_keys: [device_id, amount_bucket], weight: 0.8 }
+  - { id: shared-ip-session,       enabled: true, blocking_keys: [ip_address],   time_window_seconds: 7200,   amount_tolerance: 1.0, match_keys: [ip_address, session_id], weight: 0.7 }
+  - { id: same-counterparty-window,enabled: true, blocking_keys: [counterparty_ref], time_window_seconds: 604800, amount_tolerance: 1.0, match_keys: [counterparty_ref], weight: 0.5 }
