@@ -31,6 +31,12 @@ export default {
           danger: "var(--text-danger)",
           success: "var(--text-success)",
         },
+        primary: {
+          DEFAULT: "var(--primary)",
+          hover: "var(--primary-hover)",
+          active: "var(--primary-active)",
+          fg: "var(--primary-fg)",
+        },
         accent: {
           DEFAULT: "var(--accent)",
           hover: "var(--accent-hover)",
@@ -141,6 +147,7 @@ export default {
         md: "var(--radius-md)",
         lg: "var(--radius-lg)",
         xl: "var(--radius-xl)",
+        "2xl": "24px",
       },
       boxShadow: {
         xs: "var(--shadow-xs)",
