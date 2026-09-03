@@ -16,6 +16,7 @@ __all__ = [
     "CaseListItem",
     "CaseListPage",
     "CaseOut",
+    "CaseStatsOut",
     "NoteCreate",
     "NoteOut",
     "NoteRetract",
@@ -119,6 +120,24 @@ class CaseListPage(BaseModel):
 
     items: list[CaseListItem]
     next_cursor: str | None = None
+
+
+class CaseStatsOut(BaseModel):
+    """Aggregate counts for ``GET /api/v1/cases/stats``.
+
+    Every count honours the same filter query string as ``GET /cases`` so a
+    summary strip stays consistent with the list it sits above. ``by_status`` maps
+    each status present in the filtered set to its count; ``high_risk`` counts
+    cases at or above ``high_risk_threshold``; ``avg_risk`` is rounded to one
+    decimal and is ``0`` for an empty result.
+    """
+
+    total: int
+    by_status: dict[str, int]
+    unassigned: int
+    high_risk: int
+    high_risk_threshold: int
+    avg_risk: float
 
 
 class TimelineEntry(BaseModel):

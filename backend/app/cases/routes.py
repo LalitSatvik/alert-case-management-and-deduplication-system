@@ -26,7 +26,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth.deps import Principal, get_current_principal, require_role
 from app.cases.lifecycle import TransitionError
-from app.cases.search import CaseFilters, InvalidCursor, paginate
+from app.cases.search import CaseFilters, InvalidCursor, case_stats, paginate
 from app.cases.service import (
     CaseNotFound,
     CaseReadOnly,
@@ -47,6 +47,7 @@ from app.schemas.case import (
     CaseDetailOut,
     CaseListPage,
     CaseOut,
+    CaseStatsOut,
     NoteCreate,
     NoteOut,
     NoteRetract,
@@ -127,6 +128,16 @@ async def list_cases(
             status_code=status.HTTP_400_BAD_REQUEST, detail="invalid_cursor"
         ) from exc
     return CaseListPage(items=items, next_cursor=next_cursor)
+
+
+@router.get("/stats", response_model=CaseStatsOut, dependencies=[Depends(_READ_ROLES)])
+async def case_stats_endpoint(
+    session: SessionDep,
+    filters: Annotated[CaseFilters, Depends(_case_filters)],
+) -> CaseStatsOut:
+    """Aggregate counts for the case list. Takes the same query string as ``GET /cases``
+    (sort / limit / cursor are ignored) so a summary strip matches the filtered list."""
+    return await case_stats(session, filters)
 
 
 @router.get("/{case_id}", response_model=CaseDetailOut, dependencies=[Depends(_READ_ROLES)])

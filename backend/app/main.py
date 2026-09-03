@@ -12,6 +12,7 @@ from app.ingestion.routes import router as ingestion_router
 from app.logging import CorrelationIdMiddleware, configure_logging
 from app.metrics import http_request_duration_seconds
 from app.ops.routes import router as ops_router
+from app.users.routes import router as users_router
 
 API_V1_PREFIX = "/api/v1"
 
@@ -56,6 +57,7 @@ def create_app() -> FastAPI:
     app.include_router(audit_router, prefix=API_V1_PREFIX)
     app.include_router(ingestion_router, prefix=API_V1_PREFIX)
     app.include_router(cases_router, prefix=API_V1_PREFIX)
+    app.include_router(users_router, prefix=API_V1_PREFIX)
     return app
 
 

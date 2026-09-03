@@ -47,12 +47,15 @@ from sqlalchemy.sql.elements import ColumnElement
 from app.models.alert import Alert
 from app.models.case import Case, CaseAlertLink, Note
 from app.models.user import User
-from app.schemas.case import CaseListItem
+from app.schemas.case import CaseListItem, CaseStatsOut
 
-__all__ = ["CaseFilters", "InvalidCursor", "build_case_query", "paginate"]
+__all__ = ["CaseFilters", "InvalidCursor", "build_case_query", "case_stats", "paginate"]
 
 MAX_LIMIT = 200
 DEFAULT_LIMIT = 50
+
+# A case is "high risk" for the summary strip at or above this score.
+HIGH_RISK_THRESHOLD = 90
 
 Sort = Literal["-risk_score", "-created_at", "oldest_alert"]
 AssigneeFilter = uuid.UUID | Literal["unassigned"] | None
@@ -273,6 +276,41 @@ def _decode_cursor(sort: Sort, cursor: str) -> tuple[Any, uuid.UUID]:
     ) as exc:
         raise InvalidCursor(cursor) from exc
     return value, last_id
+
+
+async def case_stats(session: AsyncSession, filters: CaseFilters) -> CaseStatsOut:
+    """Aggregate counts over the same filtered set as :func:`paginate`.
+
+    Sort / limit / cursor on ``filters`` are ignored -- only the predicates from
+    :func:`_conditions` apply, so the numbers describe the whole filtered result,
+    not one page of it.
+    """
+    conds = _conditions(filters)
+
+    agg_stmt = select(
+        func.count().label("total"),
+        func.count().filter(Case.assignee_id.is_(None)).label("unassigned"),
+        func.count().filter(Case.risk_score >= HIGH_RISK_THRESHOLD).label("high_risk"),
+        func.coalesce(func.avg(Case.risk_score), 0).label("avg_risk"),
+    ).select_from(Case)
+    if conds:
+        agg_stmt = agg_stmt.where(*conds)
+    agg = (await session.execute(agg_stmt)).one()
+
+    status_stmt = select(Case.status, func.count()).select_from(Case)
+    if conds:
+        status_stmt = status_stmt.where(*conds)
+    status_stmt = status_stmt.group_by(Case.status)
+    by_status = {status: count for status, count in (await session.execute(status_stmt)).all()}
+
+    return CaseStatsOut(
+        total=agg.total,
+        by_status=by_status,
+        unassigned=agg.unassigned,
+        high_risk=agg.high_risk,
+        high_risk_threshold=HIGH_RISK_THRESHOLD,
+        avg_risk=round(float(agg.avg_risk), 1),
+    )
 
 
 async def paginate(
