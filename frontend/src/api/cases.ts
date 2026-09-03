@@ -1,5 +1,5 @@
 import { apiFetch } from "./client";
-import type { CaseDetail, CaseListResponse, CaseOut, NoteOut } from "./types";
+import type { CaseDetail, CaseListResponse, CaseOut, CaseStats, NoteOut } from "./types";
 
 export interface CaseQuery {
   status?: string[];
@@ -34,6 +34,12 @@ function toQueryString(params: CaseQuery): string {
 
 export function listCases(params: CaseQuery, token: string | null): Promise<CaseListResponse> {
   return apiFetch<CaseListResponse>(`/cases${toQueryString(params)}`, { token });
+}
+
+/** Aggregate counts for the case list. Pass the same `CaseQuery` as `listCases`
+ *  (sort / cursor / limit are ignored server-side) so the strip matches the table. */
+export function getCaseStats(params: CaseQuery, token: string | null): Promise<CaseStats> {
+  return apiFetch<CaseStats>(`/cases/stats${toQueryString(params)}`, { token });
 }
 
 export function getCase(id: string, token: string | null): Promise<CaseDetail> {

@@ -50,8 +50,6 @@ export interface NoteOut {
 export interface TimelineEntry {
   seq: number;
   action: string;
-  // Backend `TimelineEntry` carries `actor_id` + `actor_role` only — there is
-  // no resolved actor name (no `/users` endpoint in v1).
   actor_id?: string | null;
   actor_role?: string | null;
   reason?: string | null;
@@ -98,4 +96,19 @@ export interface CaseDetail extends CaseOut {
 export interface CaseListResponse {
   items: CaseListItem[];
   next_cursor: string | null;
+}
+
+export interface CaseStats {
+  total: number;
+  by_status: Record<string, number>;
+  unassigned: number;
+  high_risk: number;
+  high_risk_threshold: number;
+  avg_risk: number;
+}
+
+export interface UserOut {
+  id: string;
+  email: string;
+  display_name: string;
 }
