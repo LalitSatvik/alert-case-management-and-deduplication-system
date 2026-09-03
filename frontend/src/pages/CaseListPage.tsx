@@ -8,15 +8,11 @@ import { useAuth } from "../auth/AuthContext";
 import { CaseFilters } from "../components/CaseFilters";
 import { DataTable, type Column } from "../components/DataTable";
 import { StatusBadge } from "../components/StatusBadge";
+import { RiskScore } from "../components/ui/RiskScore";
+import { Page, PageBody, PageHeader } from "../components/ui/Page";
 import { relativeTime } from "../lib/format";
 
 const DEFAULT_SORT = "-risk_score";
-
-function riskClass(score: number): string {
-  if (score >= 80) return "text-ink-danger";
-  if (score >= 50) return "text-warning-subtle-fg";
-  return "text-ink-secondary";
-}
 
 export function CaseListPage() {
   const { token, principal } = useAuth();
@@ -128,11 +124,7 @@ export function CaseListPage() {
     {
       key: "risk",
       header: "Risk",
-      render: (r) => (
-        <span className={`font-mono tabular-nums font-medium ${riskClass(r.risk_score)}`}>
-          {r.risk_score}
-        </span>
-      ),
+      render: (r) => <RiskScore score={r.risk_score} size="sm" />,
     },
     {
       key: "alerts",
@@ -151,17 +143,16 @@ export function CaseListPage() {
   ];
 
   return (
-    <div className="u-enter space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-ink">Cases</h1>
+    <Page>
+      <PageHeader title="Cases">
         {query.isFetching && (
           <span className="text-xs text-ink-tertiary" aria-live="polite">
             Loading…
           </span>
         )}
-      </div>
-
-      <CaseFilters
+      </PageHeader>
+      <PageBody className="space-y-4">
+        <CaseFilters
         statuses={statuses}
         onToggleStatus={toggleStatus}
         assignee={assignee}
@@ -193,18 +184,19 @@ export function CaseListPage() {
         empty={query.isLoading ? "Loading…" : "No cases match these filters."}
       />
 
-      {query.hasNextPage && (
-        <div className="flex justify-center">
-          <button
-            type="button"
-            onClick={() => query.fetchNextPage()}
-            disabled={query.isFetchingNextPage}
-            className="inline-flex min-h-control items-center rounded-md border border-border bg-surface px-4 text-sm font-medium text-ink-secondary shadow-xs transition-colors hover:border-border-strong hover:text-ink disabled:opacity-40"
-          >
-            {query.isFetchingNextPage ? "Loading…" : "Load more"}
-          </button>
-        </div>
-      )}
-    </div>
+        {query.hasNextPage && (
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => query.fetchNextPage()}
+              disabled={query.isFetchingNextPage}
+              className="inline-flex min-h-control items-center rounded-md border border-border bg-surface px-4 text-sm font-medium text-ink-secondary shadow-xs transition-colors hover:border-border-strong hover:text-ink disabled:opacity-40"
+            >
+              {query.isFetchingNextPage ? "Loading…" : "Load more"}
+            </button>
+          </div>
+        )}
+      </PageBody>
+    </Page>
   );
 }

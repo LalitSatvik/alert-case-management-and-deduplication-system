@@ -11,6 +11,8 @@ import { Timeline } from "../components/Timeline";
 import { NotesThread } from "../components/NotesThread";
 import { AuditTable } from "../components/AuditTable";
 import { TransitionControls } from "../components/TransitionControls";
+import { Page, PageBody, PageHeader } from "../components/ui/Page";
+import { RiskScore } from "../components/ui/RiskScore";
 import { relativeTime } from "../lib/format";
 
 type Tab = "alerts" | "timeline" | "notes" | "audit";
@@ -93,20 +95,28 @@ export function CaseDetailPage() {
 
   if (query.isLoading)
     return (
-      <p className="text-sm text-ink-tertiary" aria-live="polite">
-        Loading case…
-      </p>
+      <Page>
+        <PageBody>
+          <p className="text-sm text-ink-tertiary" aria-live="polite">
+            Loading case…
+          </p>
+        </PageBody>
+      </Page>
     );
   if (query.isError || !query.data) {
     return (
-      <p
-        role="alert"
-        className="rounded-md border border-danger-border bg-danger-subtle px-3 py-2 text-sm text-danger-subtle-fg"
-      >
-        {query.error instanceof ApiError
-          ? (query.error.detail ?? query.error.message)
-          : "Case not found"}
-      </p>
+      <Page>
+        <PageBody>
+          <p
+            role="alert"
+            className="rounded-md border border-danger-border bg-danger-subtle px-3 py-2 text-sm text-danger-subtle-fg"
+          >
+            {query.error instanceof ApiError
+              ? (query.error.detail ?? query.error.message)
+              : "Case not found"}
+          </p>
+        </PageBody>
+      </Page>
     );
   }
 
@@ -115,23 +125,19 @@ export function CaseDetailPage() {
   const tabs: Tab[] = ["alerts", "timeline", "notes", "audit"];
 
   return (
-    <div className="u-enter space-y-6">
-      <header className="space-y-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="font-mono text-2xl font-semibold tracking-tight text-ink">{c.human_ref}</h1>
-          <StatusBadge status={c.status} />
-          {c.disposition && (
-            <span className="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs text-ink-secondary">
-              {c.disposition}
-            </span>
-          )}
-        </div>
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-lg border border-border bg-surface p-4 shadow-xs sm:grid-cols-3 lg:grid-cols-5">
+    <Page>
+      <PageHeader title={<span className="font-mono tracking-tight">{c.human_ref}</span>}>
+        <StatusBadge status={c.status} />
+        {c.disposition && (
+          <span className="rounded-sm bg-surface-sunken px-2 py-0.5 text-2xs font-medium uppercase tracking-wide text-ink-secondary">
+            {c.disposition}
+          </span>
+        )}
+      </PageHeader>
+      <PageBody className="u-enter space-y-5">
+        <dl className="grid grid-cols-2 items-center gap-x-6 gap-y-3 rounded-lg border border-border bg-surface p-4 sm:grid-cols-3 lg:grid-cols-5">
           <Stat label="Assignee" value={assignee} />
-          <Stat
-            label="Risk"
-            value={<span className="font-mono tabular-nums">{c.risk_score}</span>}
-          />
+          <Stat label="Risk" value={<RiskScore score={c.risk_score} size="md" />} />
           <Stat
             label="Alerts"
             value={<span className="font-mono tabular-nums">{c.alert_count}</span>}
@@ -141,19 +147,18 @@ export function CaseDetailPage() {
             <Stat label="Version" value={<span className="font-mono">v{c.version}</span>} />
           )}
         </dl>
-      </header>
 
-      <RoleGate allow={["analyst", "admin"]}>
-        <section className="space-y-3 rounded-lg border border-border bg-surface-raised p-4 shadow-sm">
-          <TransitionControls caseId={c.id} status={c.status} version={c.version} />
-          <div className="border-t border-border-subtle pt-3">
-            <AssignControl caseId={c.id} current={c.assignee_id ?? null} />
-          </div>
-        </section>
-      </RoleGate>
+        <RoleGate allow={["analyst", "admin"]}>
+          <section className="space-y-3 rounded-lg border border-border bg-surface-raised p-4">
+            <TransitionControls caseId={c.id} status={c.status} version={c.version} />
+            <div className="border-t border-border-subtle pt-3">
+              <AssignControl caseId={c.id} current={c.assignee_id ?? null} />
+            </div>
+          </section>
+        </RoleGate>
 
-      <div>
-        <nav className="flex gap-1 border-b border-border" aria-label="Case detail sections">
+        <div>
+          <nav className="flex gap-1 border-b border-border" aria-label="Case detail sections">
           {tabs.map((t) => {
             const active = tab === t;
             return (
@@ -178,22 +183,23 @@ export function CaseDetailPage() {
           })}
         </nav>
 
-        <div className="u-enter pt-5">
-          {tab === "alerts" && (
-            <div className="u-stagger space-y-3">
-              {c.alerts.map((a) => (
-                <AlertCard key={a.id} alert={a} />
-              ))}
-              {c.alerts.length === 0 && (
-                <p className="text-sm text-ink-tertiary">No alerts in this case.</p>
-              )}
-            </div>
-          )}
-          {tab === "timeline" && <Timeline entries={c.timeline} />}
-          {tab === "notes" && <NotesThread caseId={c.id} notes={c.notes} />}
-          {tab === "audit" && <AuditTable caseId={c.id} entries={c.timeline} />}
+          <div className="u-enter pt-5">
+            {tab === "alerts" && (
+              <div className="u-stagger space-y-3">
+                {c.alerts.map((a) => (
+                  <AlertCard key={a.id} alert={a} />
+                ))}
+                {c.alerts.length === 0 && (
+                  <p className="text-sm text-ink-tertiary">No alerts in this case.</p>
+                )}
+              </div>
+            )}
+            {tab === "timeline" && <Timeline entries={c.timeline} />}
+            {tab === "notes" && <NotesThread caseId={c.id} notes={c.notes} />}
+            {tab === "audit" && <AuditTable caseId={c.id} entries={c.timeline} />}
+          </div>
         </div>
-      </div>
-    </div>
+      </PageBody>
+    </Page>
   );
 }
