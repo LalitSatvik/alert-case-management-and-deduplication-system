@@ -1,0 +1,482 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   ACMS design tokens — three layers
+   1. Primitive   raw ramps, scales, radii, shadows, motion  (theme-agnostic)
+   2. Semantic    roles: bg / surface / border / text / accent / status …
+   3. Component   badge / control / table / score-bar / tab …
+   Light is the base. Dark is applied via prefers-color-scheme AND the
+   [data-theme="dark"] / [data-theme="light"] override hook on <html>.
+   ========================================================================= */
+
+@layer base {
+  :root {
+    /* ---- 1. PRIMITIVES ------------------------------------------------- */
+
+    /* cool neutral ramp (~hue 218) */
+    --gray-25: #fbfcfe;
+    --gray-50: #f3f6f9;
+    --gray-100: #e9edf3;
+    --gray-150: #dde3ec;
+    --gray-200: #cdd6e1;
+    --gray-300: #b3bfce;
+    --gray-400: #8a97a8;
+    --gray-500: #647082;
+    --gray-600: #4b5768;
+    --gray-700: #384453;
+    --gray-800: #26303c;
+    --gray-850: #1b232e;
+    --gray-900: #131a23;
+    --gray-950: #0c1118;
+
+    /* signal blue — evidence / primary (~hue 217) */
+    --blue-50: #ebf2fe;
+    --blue-100: #d7e4fd;
+    --blue-200: #b0c8fa;
+    --blue-300: #83a6f3;
+    --blue-400: #5687e9;
+    --blue-500: #2f6bdd;
+    --blue-600: #2154c0;
+    --blue-700: #1c4499;
+    --blue-800: #1a3a7d;
+    --blue-900: #172f60;
+
+    /* verified green (~hue 150) */
+    --green-50: #e5f5ec;
+    --green-100: #c6e9d5;
+    --green-200: #96d6b1;
+    --green-400: #2ba063;
+    --green-500: #16874e;
+    --green-600: #0f6d40;
+    --green-700: #0c5734;
+
+    /* attention amber (~hue 35) */
+    --amber-50: #fbf1e0;
+    --amber-100: #f6e0bd;
+    --amber-200: #ecc07f;
+    --amber-400: #c9821c;
+    --amber-500: #ac6b10;
+    --amber-600: #8c560d;
+    --amber-700: #6f4509;
+
+    /* risk red (~hue 2) */
+    --red-50: #fceceb;
+    --red-100: #f8d5d3;
+    --red-200: #f0aaa8;
+    --red-400: #d4504f;
+    --red-500: #bf3535;
+    --red-600: #9f2828;
+    --red-700: #822323;
+
+    /* similarity violet (~hue 262) */
+    --violet-50: #f0ecfc;
+    --violet-100: #e0d7f8;
+    --violet-200: #c4b2f0;
+    --violet-400: #855dd4;
+    --violet-500: #6e44c0;
+    --violet-600: #5834a0;
+    --violet-700: #482a83;
+
+    /* radii */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+
+    /* motion */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --dur-1: 120ms;
+    --dur-2: 160ms;
+    --dur-3: 200ms;
+    --dur-4: 240ms;
+    --dur-5: 320ms;
+
+    /* control sizing */
+    --control-h: 2.5rem; /* 40px hit target */
+
+    /* ---- 2. SEMANTIC (light) ---------------------------------------- */
+    color-scheme: light;
+
+    --bg: var(--gray-50);
+    --bg-header: color-mix(in srgb, var(--gray-25) 78%, transparent);
+    --surface: #ffffff;
+    --surface-raised: #ffffff;
+    --surface-sunken: #eef1f6;
+    --surface-hover: var(--gray-50);
+
+    --border: var(--gray-150);
+    --border-strong: var(--gray-300);
+    --border-subtle: var(--gray-100);
+
+    --text: var(--gray-900);
+    --text-secondary: var(--gray-600);
+    --text-tertiary: var(--gray-500);
+    /* #6a7688 -> 4.52:1 on --surface, clears AA for muted / placeholder text */
+    --text-muted: #6a7688;
+    --text-inverted: #ffffff;
+    --text-danger: var(--red-600);
+    --text-success: var(--green-600);
+
+    --accent: var(--blue-600);
+    --accent-hover: var(--blue-700);
+    --accent-active: var(--blue-800);
+    --accent-fg: #ffffff;
+    --accent-subtle: var(--blue-50);
+    --accent-subtle-fg: var(--blue-700);
+    --accent-border: var(--blue-200);
+
+    --success: var(--green-600);
+    --success-subtle: var(--green-50);
+    --success-subtle-fg: var(--green-700);
+    --success-border: var(--green-200);
+
+    --warning: var(--amber-600);
+    --warning-subtle: var(--amber-50);
+    --warning-subtle-fg: var(--amber-700);
+    --warning-border: var(--amber-200);
+
+    --danger: var(--red-600);
+    --danger-subtle: var(--red-50);
+    --danger-subtle-fg: var(--red-700);
+    --danger-border: var(--red-200);
+
+    --info: var(--violet-600);
+    --info-subtle: var(--violet-50);
+    --info-subtle-fg: var(--violet-700);
+    --info-border: var(--violet-200);
+
+    --neutral-subtle: var(--gray-100);
+    --neutral-subtle-fg: var(--gray-600);
+    --neutral-border: var(--gray-200);
+
+    --focus-ring: var(--blue-500);
+    --overlay: rgba(12, 17, 24, 0.45);
+
+    --code-bg: var(--gray-900);
+    --code-fg: var(--gray-100);
+    --code-border: transparent;
+
+    /* shadows (light — soft, cool) */
+    --shadow-xs: 0 1px 2px rgba(19, 26, 35, 0.06);
+    --shadow-sm: 0 1px 2px rgba(19, 26, 35, 0.06), 0 1px 3px rgba(19, 26, 35, 0.08);
+    --shadow-md: 0 2px 4px rgba(19, 26, 35, 0.05), 0 6px 16px rgba(19, 26, 35, 0.1);
+    --shadow-lg: 0 12px 32px rgba(19, 26, 35, 0.14), 0 3px 8px rgba(19, 26, 35, 0.08);
+
+    /* ---- 3. COMPONENT --------------------------------------------------- */
+    --scorebar-track: var(--gray-150);
+    --scorebar-fill: var(--accent);
+    --tab-indicator: var(--accent);
+  }
+
+  /* ---- DARK ---------------------------------------------------------- */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+
+      --bg: var(--gray-950);
+      --bg-header: color-mix(in srgb, var(--gray-900) 72%, transparent);
+      --surface: #11171f;
+      --surface-raised: var(--gray-850);
+      --surface-sunken: #0d131a;
+      --surface-hover: #161d27;
+
+      --border: #232d3a;
+      --border-strong: var(--gray-700);
+      --border-subtle: #1a222d;
+
+      --text: var(--gray-100);
+      --text-secondary: #9aa7b6;
+      /* --gray-400 (#8a97a8) -> 6.2:1 on --surface; --gray-500 fails AA (3.59:1) */
+      --text-tertiary: var(--gray-400);
+      --text-muted: #818f9f;
+      --text-inverted: var(--gray-950);
+      --text-danger: #f0a3a2;
+      --text-success: #6fd39c;
+
+      --accent: var(--blue-400);
+      --accent-hover: var(--blue-300);
+      --accent-active: var(--blue-200);
+      --accent-fg: #0b1120;
+      --accent-subtle: #17253f;
+      --accent-subtle-fg: #9dbdf5;
+      --accent-border: #2a3f63;
+
+      --success: #4bb87c;
+      --success-subtle: #12281d;
+      --success-subtle-fg: #6fd39c;
+      --success-border: #1e4531;
+
+      --warning: #d9962f;
+      --warning-subtle: #2a2010;
+      --warning-subtle-fg: #e0a54e;
+      --warning-border: #4a3818;
+
+      --danger: #e06c6b;
+      --danger-subtle: #2c1717;
+      --danger-subtle-fg: #ec8f8e;
+      --danger-border: #4d2a2a;
+
+      --info: #9d7ce0;
+      --info-subtle: #221a38;
+      --info-subtle-fg: #b79ae8;
+      --info-border: #392a5c;
+
+      --neutral-subtle: #1c2530;
+      --neutral-subtle-fg: #9aa7b6;
+      --neutral-border: #2b3644;
+
+      --focus-ring: var(--blue-400);
+      --overlay: rgba(0, 0, 0, 0.62);
+
+      --code-bg: #0a0e14;
+      --code-fg: var(--gray-100);
+      --code-border: #232d3a;
+
+      --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.4);
+
+      --scorebar-track: #232d3a;
+    }
+  }
+
+  /* explicit override — wins in both directions */
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --bg: var(--gray-950);
+    --bg-header: color-mix(in srgb, var(--gray-900) 72%, transparent);
+    --surface: #11171f;
+    --surface-raised: var(--gray-850);
+    --surface-sunken: #0d131a;
+    --surface-hover: #161d27;
+
+    --border: #232d3a;
+    --border-strong: var(--gray-700);
+    --border-subtle: #1a222d;
+
+    --text: var(--gray-100);
+    --text-secondary: #9aa7b6;
+    --text-tertiary: var(--gray-500);
+    --text-muted: #818f9f;
+    --text-inverted: var(--gray-950);
+    --text-danger: #f0a3a2;
+    --text-success: #6fd39c;
+
+    --accent: var(--blue-400);
+    --accent-hover: var(--blue-300);
+    --accent-active: var(--blue-200);
+    --accent-fg: #0b1120;
+    --accent-subtle: #17253f;
+    --accent-subtle-fg: #9dbdf5;
+    --accent-border: #2a3f63;
+
+    --success: #4bb87c;
+    --success-subtle: #12281d;
+    --success-subtle-fg: #6fd39c;
+    --success-border: #1e4531;
+
+    --warning: #d9962f;
+    --warning-subtle: #2a2010;
+    --warning-subtle-fg: #e0a54e;
+    --warning-border: #4a3818;
+
+    --danger: #e06c6b;
+    --danger-subtle: #2c1717;
+    --danger-subtle-fg: #ec8f8e;
+    --danger-border: #4d2a2a;
+
+    --info: #9d7ce0;
+    --info-subtle: #221a38;
+    --info-subtle-fg: #b79ae8;
+    --info-border: #392a5c;
+
+    --neutral-subtle: #1c2530;
+    --neutral-subtle-fg: #9aa7b6;
+    --neutral-border: #2b3644;
+
+    --focus-ring: var(--blue-400);
+    --overlay: rgba(0, 0, 0, 0.62);
+
+    --code-bg: #0a0e14;
+    --code-fg: var(--gray-100);
+    --code-border: #232d3a;
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.45), 0 8px 20px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.4);
+
+    --scorebar-track: #232d3a;
+  }
+
+  /* ---- base element styles ---------------------------------------- */
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: "IBM Plex Sans Variable", ui-sans-serif, system-ui, -apple-system,
+      "Segoe UI", Roboto, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.375rem;
+    font-synthesis: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--accent) 26%, transparent);
+  }
+
+  ::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
+  }
+
+  /* one visible focus treatment for every interactive element */
+  :where(a, button, input, select, textarea, summary, [tabindex], [role="button"]):focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+  :where(a, button, input, select, textarea, summary):focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  :where(button, a, summary, [role="button"]) {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* press feedback — every button, subtle */
+  button:not(:disabled):active {
+    transform: scale(0.985);
+  }
+  button {
+    transition: transform var(--dur-1) var(--ease-out),
+      background-color var(--dur-2) ease, border-color var(--dur-2) ease,
+      color var(--dur-2) ease, box-shadow var(--dur-2) ease, opacity var(--dur-2) ease;
+  }
+
+  /* scrollbars */
+  * {
+    scrollbar-color: var(--border-strong) transparent;
+    scrollbar-width: thin;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: var(--border-strong);
+    border-radius: 999px;
+    border: 2px solid var(--bg);
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: var(--text-muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+      transition-delay: 0ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    :root {
+      /* --surface is already theme-aware; opaque header, no translucency */
+      --bg-header: var(--surface);
+    }
+  }
+}
+
+@layer components {
+  /* shared enter transition for mounted regions / list items */
+  .u-enter {
+    animation: acms-enter var(--dur-3) var(--ease-out) both;
+  }
+  .u-enter-soft {
+    animation: acms-enter var(--dur-4) var(--ease-out) both;
+  }
+
+  @keyframes acms-enter {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* staggered list — cap the cascade so long lists don't crawl in */
+  .u-stagger > * {
+    animation: acms-enter var(--dur-3) var(--ease-out) both;
+  }
+  .u-stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .u-stagger > *:nth-child(2) { animation-delay: 32ms; }
+  .u-stagger > *:nth-child(3) { animation-delay: 64ms; }
+  .u-stagger > *:nth-child(4) { animation-delay: 96ms; }
+  .u-stagger > *:nth-child(5) { animation-delay: 128ms; }
+  .u-stagger > *:nth-child(6) { animation-delay: 160ms; }
+  .u-stagger > *:nth-child(n + 7) { animation-delay: 180ms; }
+
+  /* login backdrop — a faint evidence lattice, masked to a soft pool of light */
+  .evidence-grid {
+    background-color: var(--bg);
+    background-image: linear-gradient(var(--border-subtle) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+    background-size: 44px 44px;
+    background-position: center;
+    -webkit-mask-image: radial-gradient(
+      ellipse 72% 58% at 50% 40%,
+      #000 18%,
+      transparent 78%
+    );
+    mask-image: radial-gradient(ellipse 72% 58% at 50% 40%, #000 18%, transparent 78%);
+  }
+
+  /* score-bar fill: GPU transform, grows from the left on mount */
+  .score-fill {
+    transform-origin: left center;
+    transform: scaleX(var(--score, 0));
+    transition: transform var(--dur-5) var(--ease-out);
+  }
+  @starting-style {
+    .score-fill {
+      transform: scaleX(0);
+    }
+  }
+
+  /* tab underline: remounts per active tab, wipes in */
+  .tab-underline {
+    transform-origin: center;
+    transform: scaleX(1);
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+  @starting-style {
+    .tab-underline {
+      transform: scaleX(0);
+    }
+  }
+}
