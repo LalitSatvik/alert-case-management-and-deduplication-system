@@ -657,4 +657,21 @@
     overflow: hidden;
     transition: height var(--dur-3) var(--ease-out), opacity var(--dur-2) var(--ease-out);
   }
+
+  /* timeline entity connector — draws down from the top node */
+  .connector-draw {
+    animation: acms-draw-y var(--dur-3) var(--ease-out);
+    transform-origin: top;
+  }
+  @keyframes acms-draw-y {
+    from {
+      transform: scaleY(0);
+      opacity: 0.4;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .connector-draw {
+      animation: none;
+    }
+  }
 }
