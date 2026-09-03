@@ -29,7 +29,7 @@ function GearIcon() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { principal, logout } = useAuth();
-  const initials = (principal?.email ?? "?").slice(0, 2).toUpperCase();
+  const initials = (principal?.email || "?").slice(0, 2).toUpperCase();
 
   return (
     <TooltipProvider>
@@ -43,12 +43,12 @@ export function AppShell({ children }: { children: ReactNode }) {
 
         <nav
           aria-label="Primary"
-          className="flex w-[52px] shrink-0 flex-col items-center gap-1 border-r border-border bg-surface-sunken py-3"
+          className="flex w-[52px] shrink-0 flex-col items-center gap-1 border-r border-border bg-surface-sunken py-2.5"
         >
           <NavLink
             to="/cases"
             aria-label="ACMS — Investigator Console"
-            className="mb-2 flex h-9 w-9 items-center justify-center rounded-md font-mono text-xs font-bold tracking-tight text-ink"
+            className="mb-1.5 flex h-8 w-8 items-center justify-center rounded-md border border-border-strong bg-surface font-mono text-2xs font-bold tracking-tight text-ink"
           >
             AC
           </NavLink>
@@ -59,7 +59,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               className={({ isActive }) =>
                 cn(
                   railBtn,
-                  isActive && "bg-surface-hover text-accent [box-shadow:inset_2px_0_0_var(--accent)]",
+                  isActive
+                    ? "bg-surface text-accent [box-shadow:inset_2px_0_0_var(--accent)]"
+                    : "hover:bg-surface-hover",
                 )
               }
             >
@@ -68,6 +70,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           </Tooltip>
 
           <div className="flex-1" />
+          <div className="my-1 h-px w-6 bg-border" />
 
           <SettingsMenu
             trigger={
@@ -82,7 +85,8 @@ export function AppShell({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 aria-label="Account"
-                className="flex h-9 w-9 items-center justify-center rounded-md bg-surface-hover font-mono text-2xs font-semibold text-ink-secondary transition-colors hover:text-ink focus-visible:outline-none"
+                title={principal?.email ?? undefined}
+                className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-md border border-border-strong bg-surface font-mono text-2xs font-bold text-ink-secondary transition-colors hover:text-ink focus-visible:outline-none"
               >
                 {initials}
               </button>

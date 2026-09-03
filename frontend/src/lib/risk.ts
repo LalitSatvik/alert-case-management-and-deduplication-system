@@ -16,3 +16,12 @@ export const RISK_BAND_LABEL: Record<RiskBand, string> = {
   sev: "Severe",
   crit: "Critical",
 };
+
+/** Background utility for the band's indicator bar (row accents, mini bars). */
+export const RISK_BAR_BG: Record<RiskBand, string> = {
+  low: "bg-risk-low-bar",
+  elev: "bg-risk-elev-bar",
+  high: "bg-risk-high-bar",
+  sev: "bg-risk-sev-bar",
+  crit: "bg-risk-crit-bar",
+};

@@ -9,6 +9,8 @@ export interface CaseQuery {
   risk_max?: number;
   source_system?: string;
   typology?: string;
+  created_from?: string;
+  created_to?: string;
   q?: string;
   sort?: string;
   cursor?: string;
@@ -24,6 +26,8 @@ function toQueryString(params: CaseQuery): string {
   if (params.risk_max != null) sp.set("risk_max", String(params.risk_max));
   if (params.source_system) sp.set("source_system", params.source_system);
   if (params.typology) sp.set("typology", params.typology);
+  if (params.created_from) sp.set("created_from", params.created_from);
+  if (params.created_to) sp.set("created_to", params.created_to);
   if (params.q) sp.set("q", params.q);
   if (params.sort) sp.set("sort", params.sort);
   if (params.cursor) sp.set("cursor", params.cursor);

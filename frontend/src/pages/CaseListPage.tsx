@@ -1,139 +1,112 @@
-import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { listCases, type CaseQuery } from "../api/cases";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { listCases } from "../api/cases";
+import { listUsers } from "../api/users";
 import type { CaseListItem } from "../api/types";
 import { ApiError } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { CaseFilters } from "../components/CaseFilters";
-import { DataTable, type Column } from "../components/DataTable";
+import { CasesSummary } from "../components/cases/CasesSummary";
+import { BulkActionBar } from "../components/cases/BulkActionBar";
+import { DataTable, type Column } from "../components/ui/DataTable";
 import { StatusBadge } from "../components/StatusBadge";
 import { RiskScore } from "../components/ui/RiskScore";
+import { Button } from "../components/ui/Button";
 import { Page, PageBody, PageHeader } from "../components/ui/Page";
+import { readFilterState, toCaseQuery } from "../lib/caseFilters";
+import { riskBand, RISK_BAR_BG } from "../lib/risk";
 import { relativeTime } from "../lib/format";
-
-const DEFAULT_SORT = "-risk_score";
 
 export function CaseListPage() {
   const { token, principal } = useAuth();
   const [sp, setSp] = useSearchParams();
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const statuses = sp.getAll("status");
-  const assignee = sp.get("assignee") ?? "all";
-  const riskMinRaw = sp.get("risk_min");
-  const riskMin = riskMinRaw != null && riskMinRaw !== "" ? Number(riskMinRaw) : null;
-  const sort = sp.get("sort") ?? DEFAULT_SORT;
-  const urlQ = sp.get("q") ?? "";
+  const state = readFilterState(sp);
+  const query = useMemo(() => toCaseQuery(state, principal?.id), [state, principal?.id]);
 
-  const [qInput, setQInput] = useState(urlQ);
+  const usersQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: () => listUsers(token),
+    staleTime: 5 * 60_000,
+    retry: false,
+  });
+  const users = usersQuery.data ?? [];
 
-  // Debounce the free-text search into the URL (~300ms).
-  useEffect(() => {
-    if (qInput === urlQ) return;
-    const t = setTimeout(() => {
-      setSp(
-        (prev) => {
-          const n = new URLSearchParams(prev);
-          if (qInput) n.set("q", qInput);
-          else n.delete("q");
-          return n;
-        },
-        { replace: true },
-      );
-    }, 300);
-    return () => clearTimeout(t);
-  }, [qInput, urlQ, setSp]);
-
-  function mutateParams(fn: (n: URLSearchParams) => void) {
-    setSp((prev) => {
-      const n = new URLSearchParams(prev);
-      fn(n);
-      return n;
-    });
-  }
-
-  const toggleStatus = (s: string) =>
-    mutateParams((n) => {
-      const current = n.getAll("status");
-      const nextValues = current.includes(s)
-        ? current.filter((x) => x !== s)
-        : [...current, s];
-      n.delete("status");
-      nextValues.forEach((x) => n.append("status", x));
-    });
-
-  const setAssignee = (v: string) =>
-    mutateParams((n) => (v === "all" ? n.delete("assignee") : n.set("assignee", v)));
-
-  const setRiskMin = (v: number | null) =>
-    mutateParams((n) => (v == null ? n.delete("risk_min") : n.set("risk_min", String(v))));
-
-  const setSort = (v: string) =>
-    mutateParams((n) => (v === DEFAULT_SORT ? n.delete("sort") : n.set("sort", v)));
-
-  const assigneeId =
-    assignee === "unassigned"
-      ? "unassigned"
-      : assignee === "me"
-        ? principal?.id
-        : undefined;
-
-  const filters: CaseQuery = {
-    status: statuses.length ? statuses : undefined,
-    assignee_id: assigneeId ?? undefined,
-    risk_min: riskMin ?? undefined,
-    q: urlQ || undefined,
-    sort,
-    limit: 50,
-  };
-
-  const query = useInfiniteQuery({
-    queryKey: ["cases", { statuses: statuses.join(","), assignee, riskMin, q: urlQ, sort }],
-    queryFn: ({ pageParam }) =>
-      listCases({ ...filters, cursor: pageParam as string | undefined }, token),
+  const casesQuery = useInfiniteQuery({
+    queryKey: ["cases", query],
+    queryFn: ({ pageParam }) => listCases({ ...query, limit: 100, cursor: pageParam }, token),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => last.next_cursor ?? undefined,
     retry: false,
   });
 
-  const rows = query.data?.pages.flatMap((p) => p.items) ?? [];
+  const rows = casesQuery.data?.pages.flatMap((p) => p.items) ?? [];
+  const selectedCases = rows.filter((r) => selected.has(r.id));
+
+  const setSort = (sortKey: string) =>
+    setSp(
+      (prev) => {
+        const n = new URLSearchParams(prev);
+        if (sortKey === "-risk_score") n.delete("sort");
+        else n.set("sort", sortKey);
+        return n;
+      },
+      { replace: true },
+    );
+
+  const toggleRow = (key: string) =>
+    setSelected((prev) => {
+      const n = new Set(prev);
+      if (n.has(key)) n.delete(key);
+      else n.add(key);
+      return n;
+    });
+
+  const toggleAll = () =>
+    setSelected((prev) =>
+      prev.size === rows.length ? new Set() : new Set(rows.map((r) => r.id)),
+    );
 
   const columns: Column<CaseListItem>[] = [
     {
+      key: "risk",
+      header: "Risk",
+      sortKey: "-risk_score",
+      align: "right",
+      width: "5.5rem",
+      render: (r) => <RiskScore score={r.risk_score} size="sm" />,
+    },
+    {
       key: "ref",
       header: "Case",
-      render: (r) => (
-        // The `after:` overlay spans the (position: relative) <tr>, so the whole
-        // row is the link's hit area while cells keep their table semantics —
-        // no role="button" on the row.
-        <Link
-          to={`/cases/${r.id}`}
-          className="font-mono font-medium text-ink after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:underline"
-        >
-          {r.human_ref}
-        </Link>
-      ),
+      render: (r) => <span className="font-mono font-medium text-ink">{r.human_ref}</span>,
     },
     { key: "status", header: "Status", render: (r) => <StatusBadge status={r.status} /> },
     {
       key: "assignee",
       header: "Assignee",
       render: (r) =>
-        r.assignee_email ?? <span className="text-ink-tertiary">unassigned</span>,
-    },
-    {
-      key: "risk",
-      header: "Risk",
-      render: (r) => <RiskScore score={r.risk_score} size="sm" />,
+        r.assignee_email ? (
+          <span className="font-mono text-xs">{r.assignee_email}</span>
+        ) : (
+          <span className="text-ink-tertiary">—</span>
+        ),
     },
     {
       key: "alerts",
       header: "Alerts",
-      render: (r) => <span className="font-mono tabular-nums">{r.alert_count}</span>,
+      align: "right",
+      width: "4.5rem",
+      render: (r) => <span className="font-mono">{r.alert_count}</span>,
     },
     {
       key: "age",
       header: "Age",
+      sortKey: "oldest_alert",
+      align: "right",
+      width: "7rem",
       render: (r) => (
         <span className="text-ink-tertiary">
           {relativeTime(r.oldest_alert_event_time ?? r.created_at)}
@@ -145,55 +118,66 @@ export function CaseListPage() {
   return (
     <Page>
       <PageHeader title="Cases">
-        {query.isFetching && (
-          <span className="text-xs text-ink-tertiary" aria-live="polite">
-            Loading…
+        <span className="font-mono text-xs tabular-nums text-ink-tertiary">
+          {rows.length}
+          {casesQuery.hasNextPage ? "+" : ""}
+        </span>
+        {casesQuery.isFetching && (
+          <span className="text-2xs uppercase tracking-wider text-ink-tertiary" aria-live="polite">
+            Loading
           </span>
         )}
       </PageHeader>
-      <PageBody className="space-y-4">
-        <CaseFilters
-        statuses={statuses}
-        onToggleStatus={toggleStatus}
-        assignee={assignee}
-        onAssignee={setAssignee}
-        riskMin={riskMin}
-        onRiskMin={setRiskMin}
-        q={qInput}
-        onQ={setQInput}
-        sort={sort}
-        onSort={setSort}
-      />
 
-      {query.isError && (
-        <p
-          role="alert"
-          className="rounded-md border border-danger-border bg-danger-subtle px-3 py-2 text-sm text-danger-subtle-fg"
-        >
-          {query.error instanceof ApiError
-            ? (query.error.detail ?? query.error.message)
-            : "Could not load cases"}
-        </p>
-      )}
+      <PageBody className="flex flex-col gap-2">
+        <CasesSummary query={query} />
+        <CaseFilters users={users} />
 
-      <DataTable
-        columns={columns}
-        rows={rows}
-        rowKey={(r) => r.id}
-        interactive
-        empty={query.isLoading ? "Loading…" : "No cases match these filters."}
-      />
+        {selectedCases.length > 0 && (
+          <BulkActionBar
+            selected={selectedCases}
+            users={users}
+            onDone={() => setSelected(new Set())}
+          />
+        )}
 
-        {query.hasNextPage && (
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={() => query.fetchNextPage()}
-              disabled={query.isFetchingNextPage}
-              className="inline-flex min-h-control items-center rounded-md border border-border bg-surface px-4 text-sm font-medium text-ink-secondary shadow-xs transition-colors hover:border-border-strong hover:text-ink disabled:opacity-40"
+        {casesQuery.isError && (
+          <p
+            role="alert"
+            className="rounded-md border border-danger-border bg-danger-subtle px-3 py-2 text-sm text-danger-subtle-fg"
+          >
+            {casesQuery.error instanceof ApiError
+              ? (casesQuery.error.detail ?? casesQuery.error.message)
+              : "Could not load cases"}
+          </p>
+        )}
+
+        <div className="min-h-0 flex-1">
+          <DataTable
+            columns={columns}
+            rows={rows}
+            rowKey={(r) => r.id}
+            rowHref={(r) => `/cases/${r.id}`}
+            rowAccent={(r) => RISK_BAR_BG[riskBand(r.risk_score)]}
+            selectable
+            selected={selected}
+            onToggleRow={toggleRow}
+            onToggleAll={toggleAll}
+            sort={state.sort}
+            onSort={setSort}
+            empty={casesQuery.isLoading ? "Loading…" : "No cases match these filters."}
+          />
+        </div>
+
+        {casesQuery.hasNextPage && (
+          <div className="flex justify-center py-1">
+            <Button
+              size="sm"
+              onClick={() => casesQuery.fetchNextPage()}
+              disabled={casesQuery.isFetchingNextPage}
             >
-              {query.isFetchingNextPage ? "Loading…" : "Load more"}
-            </button>
+              {casesQuery.isFetchingNextPage ? "Loading…" : "Load more"}
+            </Button>
           </div>
         )}
       </PageBody>

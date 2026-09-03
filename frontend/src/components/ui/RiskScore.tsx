@@ -1,4 +1,4 @@
-import { riskBand, RISK_BAND_LABEL, type RiskBand } from "../../lib/risk";
+import { riskBand, RISK_BAND_LABEL, RISK_BAR_BG, type RiskBand } from "../../lib/risk";
 import { cn } from "./cn";
 
 /**
@@ -10,13 +10,7 @@ import { cn } from "./cn";
  */
 type Size = "sm" | "md";
 
-const BAR: Record<RiskBand, string> = {
-  low: "bg-risk-low-bar",
-  elev: "bg-risk-elev-bar",
-  high: "bg-risk-high-bar",
-  sev: "bg-risk-sev-bar",
-  crit: "bg-risk-crit-bar",
-};
+const BAR = RISK_BAR_BG;
 const FG: Record<RiskBand, string> = {
   low: "text-risk-low-fg",
   elev: "text-risk-elev-fg",
@@ -70,10 +64,10 @@ export function RiskScore({
 
   return (
     <span
-      className={cn("inline-flex items-center gap-2 tabular-nums", className)}
+      className={cn("inline-flex items-center gap-2 tabular-nums leading-none", className)}
       title={`${label} risk`}
     >
-      <span aria-hidden="true" className={cn("h-4 w-[3px] shrink-0 rounded-full", BAR[band])} />
+      <span aria-hidden="true" className={cn("h-3.5 w-[3px] shrink-0 rounded-full", BAR[band])} />
       <span className={cn("font-mono text-risk-sm font-semibold", FG[band])}>{score}</span>
     </span>
   );

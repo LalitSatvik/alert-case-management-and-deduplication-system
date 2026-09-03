@@ -1,115 +1,252 @@
-const ALL_STATUSES = ["Open", "In Progress", "Pending Info", "Closed", "Merged"];
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import type { UserOut } from "../api/types";
+import { useAuth } from "../auth/AuthContext";
+import {
+  CASE_STATUSES,
+  DISPOSITIONS,
+  SOURCE_SYSTEMS,
+  TYPOLOGIES,
+  activeFilterCount,
+  readFilterState,
+} from "../lib/caseFilters";
+import { AssigneePicker } from "./cases/AssigneePicker";
+import { SavedViewsMenu } from "./cases/SavedViewsMenu";
+import { Button } from "./ui/Button";
+import { FieldLabel, Select, TextInput } from "./ui/Field";
+import { cn } from "./ui/cn";
 
-const SORTS: { value: string; label: string }[] = [
-  { value: "-risk_score", label: "Highest risk" },
-  { value: "-created_at", label: "Newest" },
-  { value: "oldest_alert", label: "Oldest alert" },
-];
+export function CaseFilters({ users }: { users: UserOut[] }) {
+  const { principal } = useAuth();
+  const [sp, setSp] = useSearchParams();
+  const state = readFilterState(sp);
+  const [advanced, setAdvanced] = useState(activeFilterCount(state) > 0);
+  const [qInput, setQInput] = useState(state.q);
 
-const fieldLabel = "flex flex-col gap-1 text-2xs font-semibold uppercase tracking-wider text-ink-tertiary";
-const control =
-  "min-h-control rounded-md border border-border bg-surface px-2.5 text-sm font-normal normal-case tracking-normal text-ink shadow-xs transition-colors hover:border-border-strong focus-visible:border-accent";
+  useEffect(() => {
+    if (qInput === state.q) return;
+    const t = setTimeout(() => {
+      setSp(
+        (prev) => {
+          const n = new URLSearchParams(prev);
+          if (qInput) n.set("q", qInput);
+          else n.delete("q");
+          return n;
+        },
+        { replace: true },
+      );
+    }, 300);
+    return () => clearTimeout(t);
+  }, [qInput, state.q, setSp]);
 
-export interface CaseFiltersProps {
-  statuses: string[];
-  onToggleStatus: (s: string) => void;
-  assignee: string;
-  onAssignee: (v: string) => void;
-  riskMin: number | null;
-  onRiskMin: (v: number | null) => void;
-  q: string;
-  onQ: (v: string) => void;
-  sort: string;
-  onSort: (v: string) => void;
-}
+  function mutate(fn: (n: URLSearchParams) => void, replace = false) {
+    setSp(
+      (prev) => {
+        const n = new URLSearchParams(prev);
+        fn(n);
+        return n;
+      },
+      { replace },
+    );
+  }
 
-export function CaseFilters(props: CaseFiltersProps) {
-  const { statuses, onToggleStatus, assignee, onAssignee, riskMin, onRiskMin, q, onQ, sort, onSort } =
-    props;
+  const setMulti = (key: string, values: string[]) =>
+    mutate((n) => {
+      n.delete(key);
+      values.forEach((v) => n.append(key, v));
+    });
+
+  const setSingle = (key: string, value: string) =>
+    mutate((n) => (value ? n.set(key, value) : n.delete(key)));
+
+  const activeCount = activeFilterCount(state);
+  const anyActive =
+    activeCount > 0 || state.statuses.length > 0 || state.assignee !== "all" || state.q !== "";
+
+  const usersById = useMemo(() => new Map(users.map((u) => [u.id, u])), [users]);
 
   return (
-    <div className="space-y-4 rounded-lg border border-border bg-surface p-4 shadow-xs">
+    <div className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
-        {ALL_STATUSES.map((s) => {
-          const active = statuses.includes(s);
-          return (
-            <button
-              key={s}
-              type="button"
-              aria-pressed={active}
-              onClick={() => onToggleStatus(s)}
-              className={`inline-flex min-h-control items-center gap-1 rounded-full border px-3.5 text-xs font-medium transition-colors duration-2 ${
-                active
-                  ? "border-accent bg-accent pl-2.5 text-accent-fg shadow-xs"
-                  : "border-border bg-surface text-ink-secondary hover:border-border-strong hover:text-ink"
-              }`}
-            >
-              <span
-                aria-hidden="true"
-                className={`grid h-3 w-3 place-items-center transition-[opacity,transform] duration-2 ${
-                  active ? "scale-100 opacity-100" : "hidden scale-75 opacity-0"
-                }`}
+        <div className="flex flex-wrap items-center gap-1">
+          {CASE_STATUSES.map((s) => {
+            const on = state.statuses.includes(s);
+            return (
+              <button
+                key={s}
+                type="button"
+                aria-pressed={on}
+                onClick={() =>
+                  setMulti(
+                    "status",
+                    on ? state.statuses.filter((x) => x !== s) : [...state.statuses, s],
+                  )
+                }
+                className={cn(
+                  "rounded-sm border px-2 py-1 text-2xs font-semibold uppercase tracking-wide transition-colors",
+                  on
+                    ? "border-accent bg-accent-subtle text-accent-subtle-fg"
+                    : "border-border text-ink-tertiary hover:border-border-strong hover:text-ink",
+                )}
               >
-                <svg viewBox="0 0 12 12" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M2.5 6.5 5 9l4.5-5.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              {s}
-            </button>
-          );
-        })}
+                {s}
+              </button>
+            );
+          })}
+        </div>
+
+        <AssigneePicker
+          users={users}
+          value={state.assignee}
+          resolvedLabel={
+            state.assignee === "all"
+              ? "Anyone"
+              : state.assignee === "me"
+                ? "Me"
+                : state.assignee === "unassigned"
+                  ? "Unassigned"
+                  : (usersById.get(state.assignee)?.email ?? "Unknown")
+          }
+          principalId={principal?.id}
+          onChange={(v) => setSingle("assignee", v === "all" ? "" : v)}
+        />
+
+        <TextInput
+          type="search"
+          aria-label="Search cases"
+          placeholder="CASE-1042, structuring, merchant…"
+          value={qInput}
+          spellCheck={false}
+          onChange={(e) => setQInput(e.target.value)}
+          className="h-8 !w-64"
+        />
+
+        <Button
+          size="sm"
+          variant={advanced ? "primary" : "default"}
+          onClick={() => setAdvanced((v) => !v)}
+          aria-expanded={advanced}
+        >
+          Advanced{activeCount > 0 ? ` · ${activeCount}` : ""}
+        </Button>
+
+        <SavedViewsMenu users={users} />
+
+        {anyActive && (
+          <Button size="sm" variant="ghost" onClick={() => setSp({}, { replace: true })}>
+            Clear
+          </Button>
+        )}
       </div>
 
-      <div className="flex flex-wrap items-end gap-4">
-        <label className={fieldLabel}>
-          Assignee
-          <select value={assignee} onChange={(e) => onAssignee(e.target.value)} className={control}>
-            <option value="all">Anyone</option>
-            <option value="me">Me</option>
-            <option value="unassigned">Unassigned</option>
-          </select>
-        </label>
+      {advanced && (
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-md border border-border bg-surface p-3 sm:grid-cols-3 lg:grid-cols-6">
+          <label className="flex flex-col gap-1">
+            <FieldLabel>Risk min</FieldLabel>
+            <TextInput
+              type="number"
+              min={0}
+              max={100}
+              inputMode="numeric"
+              className="h-8 font-mono"
+              value={state.riskMin ?? ""}
+              onChange={(e) => setSingle("risk_min", e.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <FieldLabel>Risk max</FieldLabel>
+            <TextInput
+              type="number"
+              min={0}
+              max={100}
+              inputMode="numeric"
+              className="h-8 font-mono"
+              value={state.riskMax ?? ""}
+              onChange={(e) => setSingle("risk_max", e.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <FieldLabel>Typology</FieldLabel>
+            <Select
+              className="h-8"
+              value={state.typology}
+              onChange={(e) => setSingle("typology", e.target.value)}
+            >
+              <option value="">Any</option>
+              {TYPOLOGIES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="flex flex-col gap-1">
+            <FieldLabel>Source system</FieldLabel>
+            <Select
+              className="h-8"
+              value={state.sourceSystem}
+              onChange={(e) => setSingle("source_system", e.target.value)}
+            >
+              <option value="">Any</option>
+              {SOURCE_SYSTEMS.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <label className="flex flex-col gap-1">
+            <FieldLabel>Created after</FieldLabel>
+            <TextInput
+              type="date"
+              className="h-8"
+              value={state.createdFrom}
+              onChange={(e) => setSingle("created_from", e.target.value)}
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <FieldLabel>Created before</FieldLabel>
+            <TextInput
+              type="date"
+              className="h-8"
+              value={state.createdTo}
+              onChange={(e) => setSingle("created_to", e.target.value)}
+            />
+          </label>
 
-        <label className={fieldLabel}>
-          Min risk
-          <input
-            type="number"
-            name="risk_min"
-            inputMode="numeric"
-            autoComplete="off"
-            min={0}
-            max={100}
-            value={riskMin ?? ""}
-            onChange={(e) => onRiskMin(e.target.value === "" ? null : Number(e.target.value))}
-            className={`${control} w-24 font-mono`}
-          />
-        </label>
-
-        <label className={`${fieldLabel} flex-1`}>
-          Search
-          <input
-            type="search"
-            name="q"
-            autoComplete="off"
-            spellCheck={false}
-            value={q}
-            placeholder="e.g. CASE-1042, structuring, ACME Ltd…"
-            onChange={(e) => onQ(e.target.value)}
-            className={`${control} w-full`}
-          />
-        </label>
-
-        <label className={fieldLabel}>
-          Sort
-          <select value={sort} onChange={(e) => onSort(e.target.value)} className={control}>
-            {SORTS.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+          <fieldset className="col-span-2 flex flex-col gap-1 sm:col-span-3 lg:col-span-6">
+            <FieldLabel>Disposition</FieldLabel>
+            <div className="flex flex-wrap gap-1">
+              {DISPOSITIONS.map((d) => {
+                const on = state.dispositions.includes(d);
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() =>
+                      setMulti(
+                        "disposition",
+                        on
+                          ? state.dispositions.filter((x) => x !== d)
+                          : [...state.dispositions, d],
+                      )
+                    }
+                    className={cn(
+                      "rounded-sm border px-2 py-1 text-2xs font-medium transition-colors",
+                      on
+                        ? "border-accent bg-accent-subtle text-accent-subtle-fg"
+                        : "border-border text-ink-tertiary hover:border-border-strong hover:text-ink",
+                    )}
+                  >
+                    {d}
+                  </button>
+                );
+              })}
+            </div>
+          </fieldset>
+        </div>
+      )}
     </div>
   );
 }
