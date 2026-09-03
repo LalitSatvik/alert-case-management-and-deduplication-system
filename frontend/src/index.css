@@ -79,6 +79,18 @@
     --violet-600: #5834a0;
     --violet-700: #482a83;
 
+    /* risk orange — the "high" band, between amber and red (~hue 20) */
+    --orange-50: #fbeee2;
+    --orange-400: #d9722a;
+    --orange-500: #c05f1c;
+    --orange-700: #8a4212;
+
+    /* risk crimson — the "critical" band, deepest + slight magenta (~hue 348) */
+    --crimson-50: #fbe9ee;
+    --crimson-400: #d11f4e;
+    --crimson-500: #b3183f;
+    --crimson-700: #7a1533;
+
     /* radii */
     --radius-xs: 4px;
     --radius-sm: 6px;
@@ -98,6 +110,15 @@
 
     /* control sizing */
     --control-h: 2.5rem; /* 40px hit target */
+
+    /* ---- density -----------------------------------------------------
+       The default (no [data-density]) is "comfortable". [data-density]
+       on <html> swaps these; every table row / cell / compact control
+       reads them so one attribute retunes the whole console. */
+    --row-h: 2.75rem; /* 44px */
+    --cell-px: 0.875rem; /* 14px */
+    --cell-py: 0.625rem; /* 10px */
+    --table-font: 0.8125rem; /* 13px */
 
     /* ---- 2. SEMANTIC (light) ---------------------------------------- */
     color-scheme: light;
@@ -154,6 +175,31 @@
     --neutral-subtle-fg: var(--gray-600);
     --neutral-border: var(--gray-200);
 
+    /* risk ramp — the one place color is allowed to shout.
+       band boundaries: low 0-39 / elevated 40-59 / high 60-79 /
+       severe 80-89 / critical 90-100. Each: -fg text, -bar indicator, -bg wash. */
+    --risk-low-fg: var(--gray-500);
+    --risk-low-bar: var(--gray-300);
+    --risk-low-bg: var(--gray-50);
+    --risk-elev-fg: var(--amber-700);
+    --risk-elev-bar: var(--amber-400);
+    --risk-elev-bg: var(--amber-50);
+    --risk-high-fg: var(--orange-700);
+    --risk-high-bar: var(--orange-400);
+    --risk-high-bg: var(--orange-50);
+    --risk-sev-fg: var(--red-700);
+    --risk-sev-bar: var(--red-500);
+    --risk-sev-bg: var(--red-50);
+    --risk-crit-fg: var(--crimson-700);
+    --risk-crit-bar: var(--crimson-400);
+    --risk-crit-bg: var(--crimson-50);
+
+    /* diff — payload + timeline change highlighting */
+    --diff-add-fg: var(--green-700);
+    --diff-add-bg: var(--green-50);
+    --diff-del-fg: var(--red-700);
+    --diff-del-bg: var(--red-50);
+
     --focus-ring: var(--blue-500);
     --overlay: rgba(12, 17, 24, 0.45);
 
@@ -178,16 +224,18 @@
     :root:not([data-theme="light"]) {
       color-scheme: dark;
 
-      --bg: var(--gray-950);
-      --bg-header: color-mix(in srgb, var(--gray-900) 72%, transparent);
-      --surface: #11171f;
-      --surface-raised: var(--gray-850);
-      --surface-sunken: #0d131a;
-      --surface-hover: #161d27;
+      /* planes are stepped wide enough to read as distinct depths from
+         background + border alone — interior panels carry no shadow. */
+      --bg: #0a0e14;
+      --bg-header: color-mix(in srgb, #0d131a 72%, transparent);
+      --surface: #141b24;
+      --surface-raised: #1e2732;
+      --surface-sunken: #0e141b;
+      --surface-hover: #1a222d;
 
-      --border: #232d3a;
+      --border: #2b3644;
       --border-strong: var(--gray-700);
-      --border-subtle: #1a222d;
+      --border-subtle: #1c2530;
 
       --text: var(--gray-100);
       --text-secondary: #9aa7b6;
@@ -230,6 +278,27 @@
       --neutral-subtle-fg: #9aa7b6;
       --neutral-border: #2b3644;
 
+      --risk-low-fg: #9aa7b6;
+      --risk-low-bar: #4b5768;
+      --risk-low-bg: #161d27;
+      --risk-elev-fg: #e0a54e;
+      --risk-elev-bar: #d9962f;
+      --risk-elev-bg: #2a2010;
+      --risk-high-fg: #f0a566;
+      --risk-high-bar: #e07a2e;
+      --risk-high-bg: #2a1c10;
+      --risk-sev-fg: #ec8f8e;
+      --risk-sev-bar: #e06c6b;
+      --risk-sev-bg: #2c1717;
+      --risk-crit-fg: #ff90ac;
+      --risk-crit-bar: #f0356b;
+      --risk-crit-bg: #301521;
+
+      --diff-add-fg: #6fd39c;
+      --diff-add-bg: #12281d;
+      --diff-del-fg: #ec8f8e;
+      --diff-del-bg: #2c1717;
+
       --focus-ring: var(--blue-400);
       --overlay: rgba(0, 0, 0, 0.62);
 
@@ -246,24 +315,26 @@
     }
   }
 
-  /* explicit override — wins in both directions */
+  /* explicit override — wins in both directions.
+     Mirrors the prefers-color-scheme block above; keep the two in sync. */
   :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --bg: var(--gray-950);
-    --bg-header: color-mix(in srgb, var(--gray-900) 72%, transparent);
-    --surface: #11171f;
-    --surface-raised: var(--gray-850);
-    --surface-sunken: #0d131a;
-    --surface-hover: #161d27;
+    --bg: #0a0e14;
+    --bg-header: color-mix(in srgb, #0d131a 72%, transparent);
+    --surface: #141b24;
+    --surface-raised: #1e2732;
+    --surface-sunken: #0e141b;
+    --surface-hover: #1a222d;
 
-    --border: #232d3a;
+    --border: #2b3644;
     --border-strong: var(--gray-700);
-    --border-subtle: #1a222d;
+    --border-subtle: #1c2530;
 
     --text: var(--gray-100);
     --text-secondary: #9aa7b6;
-    --text-tertiary: var(--gray-500);
+    /* --gray-400 clears AA on --surface; --gray-500 does not */
+    --text-tertiary: var(--gray-400);
     --text-muted: #818f9f;
     --text-inverted: var(--gray-950);
     --text-danger: #f0a3a2;
@@ -301,6 +372,27 @@
     --neutral-subtle-fg: #9aa7b6;
     --neutral-border: #2b3644;
 
+    --risk-low-fg: #9aa7b6;
+    --risk-low-bar: #4b5768;
+    --risk-low-bg: #161d27;
+    --risk-elev-fg: #e0a54e;
+    --risk-elev-bar: #d9962f;
+    --risk-elev-bg: #2a2010;
+    --risk-high-fg: #f0a566;
+    --risk-high-bar: #e07a2e;
+    --risk-high-bg: #2a1c10;
+    --risk-sev-fg: #ec8f8e;
+    --risk-sev-bar: #e06c6b;
+    --risk-sev-bg: #2c1717;
+    --risk-crit-fg: #ff90ac;
+    --risk-crit-bar: #f0356b;
+    --risk-crit-bg: #301521;
+
+    --diff-add-fg: #6fd39c;
+    --diff-add-bg: #12281d;
+    --diff-del-fg: #ec8f8e;
+    --diff-del-bg: #2c1717;
+
     --focus-ring: var(--blue-400);
     --overlay: rgba(0, 0, 0, 0.62);
 
@@ -314,6 +406,21 @@
     --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.4);
 
     --scorebar-track: #232d3a;
+  }
+
+  /* ---- density ------------------------------------------------------
+     [data-density] on <html>; default (unset) = comfortable. */
+  :root[data-density="compact"] {
+    --row-h: 2rem; /* 32px */
+    --cell-px: 0.625rem; /* 10px */
+    --cell-py: 0.375rem; /* 6px */
+    --control-h: 2.25rem; /* 36px */
+  }
+  :root[data-density="dense"] {
+    --row-h: 1.625rem; /* 26px */
+    --cell-px: 0.5rem; /* 8px */
+    --cell-py: 0.1875rem; /* 3px */
+    --control-h: 2rem; /* 32px */
   }
 
   /* ---- base element styles ---------------------------------------- */
@@ -478,5 +585,74 @@
     .tab-underline {
       transform: scaleX(0);
     }
+  }
+
+  /* ---- overlay surfaces (Radix) --------------------------------------
+     One class for every popper-positioned surface — menu, popover,
+     tooltip. Scales from the trigger via Radix's transform-origin var. */
+  .pop-surface {
+    transform-origin: var(--radix-popper-transform-origin);
+  }
+  .pop-surface[data-state="open"],
+  .pop-surface[data-state="instant-open"],
+  .pop-surface[data-state="delayed-open"] {
+    animation: acms-pop-in var(--dur-2) var(--ease-out);
+  }
+  .pop-surface[data-state="closed"] {
+    animation: acms-pop-out var(--dur-1) var(--ease-out);
+  }
+  @keyframes acms-pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+  @keyframes acms-pop-out {
+    to {
+      opacity: 0;
+      transform: scale(0.96);
+    }
+  }
+
+  /* dialog: centered, not trigger-anchored — origin stays center */
+  .dialog-overlay[data-state="open"] {
+    animation: acms-fade-in var(--dur-2) ease;
+  }
+  .dialog-overlay[data-state="closed"] {
+    animation: acms-fade-out var(--dur-1) ease;
+  }
+  .dialog-panel[data-state="open"] {
+    animation: acms-dialog-in var(--dur-3) var(--ease-out);
+  }
+  .dialog-panel[data-state="closed"] {
+    animation: acms-dialog-out var(--dur-2) var(--ease-out);
+  }
+  @keyframes acms-fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes acms-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes acms-dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px) scale(0.98);
+    }
+  }
+  @keyframes acms-dialog-out {
+    to {
+      opacity: 0;
+      transform: translateY(4px) scale(0.98);
+    }
+  }
+
+  /* controlled accordion (alert payload, timeline node) — height + opacity */
+  .accordion-region {
+    overflow: hidden;
+    transition: height var(--dur-3) var(--ease-out), opacity var(--dur-2) var(--ease-out);
   }
 }

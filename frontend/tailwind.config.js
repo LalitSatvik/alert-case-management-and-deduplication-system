@@ -75,6 +75,30 @@ export default {
           border: "var(--code-border)",
         },
         focus: "var(--focus-ring)",
+        // risk ramp — bands bound to score; -fg text, -bar indicator, -bg wash
+        risk: {
+          "low-fg": "var(--risk-low-fg)",
+          "low-bar": "var(--risk-low-bar)",
+          "low-bg": "var(--risk-low-bg)",
+          "elev-fg": "var(--risk-elev-fg)",
+          "elev-bar": "var(--risk-elev-bar)",
+          "elev-bg": "var(--risk-elev-bg)",
+          "high-fg": "var(--risk-high-fg)",
+          "high-bar": "var(--risk-high-bar)",
+          "high-bg": "var(--risk-high-bg)",
+          "sev-fg": "var(--risk-sev-fg)",
+          "sev-bar": "var(--risk-sev-bar)",
+          "sev-bg": "var(--risk-sev-bg)",
+          "crit-fg": "var(--risk-crit-fg)",
+          "crit-bar": "var(--risk-crit-bar)",
+          "crit-bg": "var(--risk-crit-bg)",
+        },
+        diff: {
+          "add-fg": "var(--diff-add-fg)",
+          "add-bg": "var(--diff-add-bg)",
+          "del-fg": "var(--diff-del-fg)",
+          "del-bg": "var(--diff-del-bg)",
+        },
       },
       fontFamily: {
         sans: [
@@ -105,6 +129,11 @@ export default {
         xl: ["1.25rem", { lineHeight: "1.7rem", letterSpacing: "-0.011em" }],
         "2xl": ["1.5rem", { lineHeight: "1.9rem", letterSpacing: "-0.016em" }],
         "3xl": ["1.875rem", { lineHeight: "2.2rem", letterSpacing: "-0.021em" }],
+        // density-aware table body size (driven by --table-font / [data-density])
+        table: ["var(--table-font)", { lineHeight: "1.2rem" }],
+        // risk gauge readout — heavy mono numerals, tight
+        "risk-sm": ["0.9375rem", { lineHeight: "1", letterSpacing: "-0.01em" }],
+        "risk-md": ["1.75rem", { lineHeight: "1", letterSpacing: "-0.02em" }],
       },
       borderRadius: {
         xs: "var(--radius-xs)",
@@ -134,9 +163,15 @@ export default {
       },
       minHeight: {
         control: "var(--control-h)",
+        row: "var(--row-h)",
       },
       height: {
         control: "var(--control-h)",
+        row: "var(--row-h)",
+      },
+      spacing: {
+        "cell-x": "var(--cell-px)",
+        "cell-y": "var(--cell-py)",
       },
       backdropBlur: {
         header: "14px",
