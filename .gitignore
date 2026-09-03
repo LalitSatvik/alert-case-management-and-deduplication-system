@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / frontend
+node_modules/
+frontend/dist/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+.env.*
+!.env.example
+*.pem
+*.key
+id_rsa*
+*.p12
+credentials.json
+service-account*.json
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Generated benchmark datasets are checked in on purpose
+!backend/scripts/data/benchmark.jsonl
+!backend/scripts/data/benchmark_hard.jsonl

@@ -1,0 +1,110 @@
+# ACMS single-node stack. Every image below publishes a linux/arm64 variant, so
+# the same file runs on an x86 laptop and on an OCI Ampere A1 (arm64) box with no
+# changes. See DEPLOY.md for the two deployment shapes (Cloudflare Tunnel / OCI).
+#
+# Only `proxy` publishes ports (80/443). Everything else talks over the default
+# compose network. Add a `ports:` block to postgres or valkey locally if you want
+# to point a GUI at them.
+
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      # Superuser password, used only during first-boot init (see
+      # docker/postgres/init/). Override in .env for a real deployment.
+      POSTGRES_PASSWORD: ${POSTGRES_SUPERUSER_PASSWORD:-bootstrap}
+      # Consumed by docker/postgres/init/01-roles.sh on first-boot init to
+      # create the acms_owner / app_user roles. Must match the credentials
+      # embedded in DATABASE_URL / MIGRATION_DATABASE_URL in .env.
+      POSTGRES_OWNER_PASSWORD: ${POSTGRES_OWNER_PASSWORD:?set POSTGRES_OWNER_PASSWORD in .env}
+      POSTGRES_APP_PASSWORD: ${POSTGRES_APP_PASSWORD:?set POSTGRES_APP_PASSWORD in .env}
+    volumes:
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U acms_owner -d acms"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  valkey:
+    image: valkey/valkey:8
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    env_file: [.env]
+    depends_on:
+      postgres: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+    expose: ["8000"]
+
+  worker:
+    build: ./backend
+    restart: unless-stopped
+    command: ["arq", "app.worker.WorkerSettings"]
+    env_file: [.env]
+    depends_on:
+      postgres: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+
+  # One-shot: runs `alembic upgrade head` then loads the deterministic demo data
+  # (three logins, an ingest API key, ~150 synthetic clusters). It TRUNCATEs every
+  # application table first, so it must never run on a plain `docker compose up` —
+  # the `seed` profile keeps it out of the default set. Invoke explicitly:
+  #   docker compose run --rm seed   (auto-enables the profile)
+  seed:
+    build: ./backend
+    profiles: ["seed"]
+    command: ["python", "scripts/seed.py"]
+    env_file: [.env]
+    depends_on:
+      postgres: { condition: service_healthy }
+      valkey: { condition: service_healthy }
+    restart: "no"
+
+  # One-shot: builds the SPA (node:22-alpine) and drops the static bundle into the
+  # shared `webroot` volume that `proxy` serves. Exits 0 when the copy is done;
+  # `proxy` waits for that via `service_completed_successfully`.
+  frontend:
+    build:
+      context: ./frontend
+    volumes:
+      - webroot:/srv
+    restart: "no"   # one-shot: publishes the bundle and exits 0
+
+  # The only internet-facing service. Terminates TLS (or runs HTTP-only behind a
+  # Cloudflare Tunnel), reverse-proxies the API paths to `api:8000`, and serves
+  # the SPA for everything else. Site address comes from $SITE_ADDRESS.
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on:
+      api: { condition: service_started }
+      frontend: { condition: service_completed_successfully }
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      # http://localhost -> plain HTTP on :80, no cert (local + Cloudflare Tunnel).
+      # A bare host (acms.example.com) -> Caddy manages HTTPS automatically.
+      SITE_ADDRESS: ${SITE_ADDRESS:-http://localhost}
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - webroot:/srv:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  pgdata:       # the only stateful volume — back this up (see DEPLOY.md)
+  webroot:      # rebuilt on every `up`; disposable
+  caddy_data:   # ACME certs / keys; disposable (re-issued on loss)
+  caddy_config: # disposable

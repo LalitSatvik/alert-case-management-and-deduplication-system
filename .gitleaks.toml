@@ -1,0 +1,17 @@
+[allowlist]
+description = "test-only placeholder values, not real secrets"
+paths = [
+  'backend/tests/conftest.py',
+  '\.env\.example$',
+  # Only the role-bootstrap script — NOT the whole init dir, so a real secret
+  # added elsewhere under docker/postgres/init/ later is still caught.
+  'docker/postgres/init/01-roles\..*',
+]
+# Specific known placeholder strings only — no wildcards.
+regexes = [
+  'test-secret-that-is-at-least-32-bytes-long',
+  'owner_pw',
+  'app_pw',
+  'minioadmin',
+  'change-me-in-real-deployments',
+]

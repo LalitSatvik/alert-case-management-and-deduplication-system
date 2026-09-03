@@ -1,0 +1,57 @@
+# ACMS reverse proxy.
+#
+# One site, addressed by $SITE_ADDRESS (see .env / .env.example):
+#
+#   * SITE_ADDRESS=http://localhost  -> plain HTTP on :80, no certificate. The
+#                                       explicit `http://` scheme tells Caddy to
+#                                       serve this site over HTTP only and NOT to
+#                                       provision a certificate, bind :443, or add
+#                                       an HTTP->HTTPS redirect.
+#   * SITE_ADDRESS=acms.example.com  -> a bare hostname turns on Caddy's automatic
+#                                       HTTPS: it obtains and renews a Let's
+#                                       Encrypt certificate (ports 80+443 must
+#                                       reach this host).
+#
+# TLS modes
+# ---------
+# 1. Public host with a real domain (OCI fallback): set SITE_ADDRESS to the bare
+#    domain, open 80/443 in the security list, and Caddy manages HTTPS itself.
+#    Nothing else to configure.
+#
+# 2. Behind a Cloudflare Tunnel (primary): keep SITE_ADDRESS=http://localhost.
+#    Caddy serves plain HTTP on :80 only; `cloudflared` connects outbound and
+#    Cloudflare terminates TLS at its edge. No inbound ports are opened on the
+#    host, and there is no local redirect to a loopback https URL.
+#
+# The SPA bundle is served from /srv, a read-only volume populated by the
+# one-shot `frontend` service (it builds with node:22-alpine and copies the
+# static output into the shared `webroot` volume).
+
+{$SITE_ADDRESS:http://localhost} {
+	encode gzip
+
+	# Reject oversized request bodies at the edge, before they reach FastAPI.
+	# Applies to every route below; the batch-ingest handler adds its own
+	# item-count cap on top of this.
+	request_body {
+		max_size 10MB
+	}
+
+	# API + the three unprefixed ops routes -> FastAPI. A named matcher keeps
+	# this to one `handle` block; `handle` blocks are mutually exclusive and
+	# matched in order, so the SPA try_files fallback below never rewrites a
+	# backend request.
+	@backend path /api/* /healthz /readyz /metrics
+	handle @backend {
+		reverse_proxy api:8000
+	}
+
+	# Everything else: the single-page app. Serve the requested file if it
+	# exists, otherwise hand back index.html so client-side routes (deep links,
+	# refreshes) resolve.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}
