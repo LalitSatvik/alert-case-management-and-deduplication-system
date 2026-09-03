@@ -34,7 +34,7 @@ export function AlertDiffDialog({
         >
           <div className="space-y-3 p-4">
             <label className="flex items-center gap-2 text-sm">
-              <span className="text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+              <span className="text-xs font-medium text-ink-tertiary">
                 Compare to
               </span>
               <Select
@@ -53,7 +53,7 @@ export function AlertDiffDialog({
             {other ? (
               <>
                 <div>
-                  <p className="mb-1 text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+                  <p className="mb-1 text-xs font-medium text-ink-tertiary">
                     Normalized fields
                   </p>
                   <RecordDiff
@@ -65,7 +65,7 @@ export function AlertDiffDialog({
                 {(Object.keys(base.raw_payload ?? {}).length > 0 ||
                   Object.keys(other.raw_payload ?? {}).length > 0) && (
                   <div>
-                    <p className="mb-1 text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+                    <p className="mb-1 text-xs font-medium text-ink-tertiary">
                       Raw payload
                     </p>
                     <RecordDiff

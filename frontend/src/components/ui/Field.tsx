@@ -8,9 +8,9 @@ import {
 import { cn } from "./cn";
 
 const CONTROL =
-  "min-h-control w-full rounded-md border border-border bg-surface px-2.5 text-sm text-ink shadow-xs " +
+  "min-h-control w-full rounded-lg border border-border bg-surface px-3 text-sm text-ink shadow-xs " +
   "transition-colors placeholder:text-ink-muted hover:border-border-strong " +
-  "focus-visible:border-accent focus-visible:outline-none disabled:opacity-40";
+  "focus-visible:border-ink focus-visible:outline-none disabled:opacity-40";
 
 export const TextInput = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   function TextInput({ className, type = "text", ...rest }, ref) {
@@ -40,16 +40,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<H
   },
 );
 
-/** Small uppercase field label — the console's established micro-label. */
+/** Field / section label. */
 export function FieldLabel({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <span
-      className={cn(
-        "text-2xs font-semibold uppercase tracking-wider text-ink-tertiary",
-        className,
-      )}
-    >
-      {children}
-    </span>
+    <span className={cn("text-xs font-medium text-ink-secondary", className)}>{children}</span>
   );
 }

@@ -83,10 +83,10 @@ export function CaseFilters({ users }: { users: UserOut[] }) {
                   )
                 }
                 className={cn(
-                  "rounded-sm border px-2 py-1 text-2xs font-semibold uppercase tracking-wide transition-colors",
+                  "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
                   on
-                    ? "border-accent bg-accent-subtle text-accent-subtle-fg"
-                    : "border-border text-ink-tertiary hover:border-border-strong hover:text-ink",
+                    ? "border-primary bg-primary text-primary-fg"
+                    : "border-border bg-surface text-ink-secondary hover:border-border-strong hover:text-ink",
                 )}
               >
                 {s}
@@ -140,7 +140,7 @@ export function CaseFilters({ users }: { users: UserOut[] }) {
       </div>
 
       {advanced && (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-md border border-border bg-surface p-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-2xl border border-border bg-surface p-4 shadow-xs sm:grid-cols-3 lg:grid-cols-6">
           <label className="flex flex-col gap-1">
             <FieldLabel>Risk min</FieldLabel>
             <TextInput
@@ -233,9 +233,9 @@ export function CaseFilters({ users }: { users: UserOut[] }) {
                       )
                     }
                     className={cn(
-                      "rounded-sm border px-2 py-1 text-2xs font-medium transition-colors",
+                      "rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
                       on
-                        ? "border-accent bg-accent-subtle text-accent-subtle-fg"
+                        ? "border-primary bg-primary text-primary-fg"
                         : "border-border text-ink-tertiary hover:border-border-strong hover:text-ink",
                     )}
                   >

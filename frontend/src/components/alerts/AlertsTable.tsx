@@ -38,7 +38,7 @@ function Stacked({ top, bottom }: { top?: string | null; bottom?: string | null 
   );
 }
 
-const HEAD = "text-2xs font-semibold uppercase tracking-wider text-ink-tertiary";
+const HEAD = "text-xs font-medium text-ink-tertiary";
 
 // Short codes keep the typology column tight; full name stays in the tooltip + detail panel.
 const TYPOLOGY_CODE: Record<string, string> = {
@@ -68,12 +68,12 @@ export function AlertsTable({ alerts }: { alerts: AlertOut[] }) {
 
   return (
     <>
-      <div className="overflow-x-auto rounded-md border border-border bg-surface">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-surface shadow-xs">
         <div className="min-w-[52rem]">
           <div
             className={cn(
               GRID,
-              "sticky top-0 z-10 border-b border-border bg-surface-sunken px-cell-x py-cell-y",
+              "sticky top-0 z-10 border-b border-border bg-surface px-cell-x py-cell-y",
             )}
           >
             <span />
@@ -173,14 +173,14 @@ export function AlertsTable({ alerts }: { alerts: AlertOut[] }) {
                         <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
                           {Object.entries(alertFields(a)).map(([k, v]) => (
                             <div key={k} className="min-w-0">
-                              <dt className="text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+                              <dt className="text-xs font-medium text-ink-tertiary">
                                 {k}
                               </dt>
                               <dd className="truncate font-mono text-xs text-ink">{String(v)}</dd>
                             </div>
                           ))}
                         </dl>
-                        <p className="mb-1 mt-3 text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+                        <p className="mb-1 mt-3 text-xs font-medium text-ink-tertiary">
                           Raw payload
                         </p>
                         <JsonView value={a.raw_payload} />

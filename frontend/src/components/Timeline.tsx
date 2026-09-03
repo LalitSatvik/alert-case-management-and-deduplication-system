@@ -169,7 +169,7 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
       </ol>
 
       <aside className="shrink-0 lg:w-56">
-        <p className="mb-2 text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+        <p className="mb-2 text-xs font-medium text-ink-tertiary">
           Entities
         </p>
         <ul className="space-y-0.5">
@@ -206,7 +206,7 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
           <button
             type="button"
             onClick={() => setActiveEntity(null)}
-            className="mt-2 px-2 text-2xs uppercase tracking-wider text-ink-tertiary hover:text-ink"
+            className="mt-2 px-2 text-xs font-medium text-ink-tertiary hover:text-ink"
           >
             Clear highlight
           </button>

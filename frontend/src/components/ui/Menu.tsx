@@ -6,7 +6,7 @@ export const Menu = DropdownMenu.Root;
 export const MenuTrigger = DropdownMenu.Trigger;
 
 const CONTENT =
-  "pop-surface z-50 min-w-[10rem] overflow-hidden rounded-md border border-border bg-surface-raised p-1 shadow-md";
+  "pop-surface z-50 min-w-[10rem] overflow-hidden rounded-xl border border-border bg-surface-raised p-1.5 shadow-lg";
 
 export function MenuContent({
   className,
@@ -30,7 +30,7 @@ export function MenuContent({
 }
 
 const ITEM =
-  "flex cursor-pointer select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm text-ink-secondary outline-none " +
+  "flex cursor-pointer select-none items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-ink-secondary outline-none " +
   "data-[highlighted]:bg-surface-hover data-[highlighted]:text-ink data-[disabled]:pointer-events-none data-[disabled]:opacity-40";
 
 export function MenuItem({
@@ -48,7 +48,7 @@ export function MenuItem({
 
 export function MenuLabel({ children }: { children: ReactNode }) {
   return (
-    <DropdownMenu.Label className="px-2 py-1 text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+    <DropdownMenu.Label className="px-2 py-1 text-xs font-medium text-ink-tertiary">
       {children}
     </DropdownMenu.Label>
   );

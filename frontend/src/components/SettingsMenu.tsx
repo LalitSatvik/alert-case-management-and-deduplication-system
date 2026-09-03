@@ -35,10 +35,10 @@ function SegRow<T extends string>({
 }) {
   return (
     <div className="space-y-1.5">
-      <span className="text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+      <span className="text-xs font-medium text-ink-tertiary">
         {label}
       </span>
-      <div className="flex gap-1 rounded-md border border-border bg-surface-sunken p-0.5">
+      <div className="flex gap-1 rounded-xl border border-border bg-surface-sunken p-0.5">
         {options.map((o) => (
           <button
             key={o.value}

@@ -13,7 +13,7 @@ const LABEL: Record<string, { text: string; tone: BadgeTone }> = {
 export function GroupingBadge({ grouping }: { grouping: GroupingInfo | null }) {
   if (!grouping) {
     return (
-      <Badge tone="neutral" variant="outline" uppercase>
+      <Badge tone="neutral" variant="outline">
         No group
       </Badge>
     );
@@ -25,12 +25,12 @@ export function GroupingBadge({ grouping }: { grouping: GroupingInfo | null }) {
     return (
       <Popover>
         <PopoverTrigger>
-          <Badge tone={meta.tone} dot uppercase>
+          <Badge tone={meta.tone} dot>
             {meta.text}
           </Badge>
         </PopoverTrigger>
         <PopoverContent className="w-72">
-          <p className="mb-1 text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+          <p className="mb-1 text-xs font-medium text-ink-tertiary">
             Matched rules
           </p>
           <ul className="space-y-0.5 font-mono text-xs text-ink-secondary">
@@ -54,12 +54,12 @@ export function GroupingBadge({ grouping }: { grouping: GroupingInfo | null }) {
     return (
       <Popover>
         <PopoverTrigger>
-          <Badge tone={meta.tone} dot uppercase>
+          <Badge tone={meta.tone} dot>
             {meta.text} <span className="ml-1 font-mono tabular-nums">{score}</span>
           </Badge>
         </PopoverTrigger>
         <PopoverContent className="w-72">
-          <p className="mb-2 text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">
+          <p className="mb-2 text-xs font-medium text-ink-tertiary">
             Feature contributions
           </p>
           <dl className="space-y-1">
@@ -89,7 +89,7 @@ export function GroupingBadge({ grouping }: { grouping: GroupingInfo | null }) {
   }
 
   return (
-    <Badge tone={meta.tone} variant="outline" uppercase>
+    <Badge tone={meta.tone} variant="outline">
       {meta.text}
     </Badge>
   );

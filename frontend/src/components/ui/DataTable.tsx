@@ -114,7 +114,7 @@ export function DataTable<T>({
       role="grid"
       tabIndex={0}
       onKeyDown={onKeyDown}
-      className="overflow-auto rounded-md border border-border bg-surface focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-focus"
+      className="overflow-auto rounded-2xl border border-border bg-surface shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
     >
       <table className="min-w-full border-separate border-spacing-0 text-table">
         <thead>
@@ -122,7 +122,7 @@ export function DataTable<T>({
             {selectable && (
               <th
                 style={{ top: headerTop }}
-                className="sticky z-10 w-8 border-b border-border bg-surface-sunken px-cell-x py-cell-y"
+                className="sticky z-10 w-8 border-b border-border bg-surface px-cell-x py-cell-y"
               >
                 <Checkbox
                   aria-label="Select all rows"
@@ -138,7 +138,7 @@ export function DataTable<T>({
                   key={c.key}
                   style={{ top: headerTop, width: c.width }}
                   className={cn(
-                    "sticky z-10 border-b border-border bg-surface-sunken px-cell-x py-cell-y text-2xs font-semibold uppercase tracking-wider text-ink-tertiary",
+                    "sticky z-10 border-b border-border bg-surface px-cell-x py-cell-y text-xs font-medium text-ink-tertiary",
                     c.align === "right" ? "text-right" : "text-left",
                     c.className,
                   )}
@@ -148,7 +148,7 @@ export function DataTable<T>({
                       type="button"
                       onClick={() => onSort(c.sortKey!)}
                       className={cn(
-                        "inline-flex items-center uppercase tracking-wider transition-colors hover:text-ink",
+                        "inline-flex items-center transition-colors hover:text-ink",
                         active && "text-ink",
                       )}
                     >
@@ -182,9 +182,7 @@ export function DataTable<T>({
                 className={cn(
                   "group",
                   rowHref && "cursor-pointer",
-                  isSelected && "bg-accent-subtle",
-                  isActive && !isSelected && "bg-surface-hover",
-                  !isActive && !isSelected && "hover:bg-surface-hover",
+                  isSelected ? "bg-accent-subtle" : isActive ? "bg-surface-hover" : "hover:bg-surface-hover",
                 )}
               >
                 {selectable && (
@@ -192,7 +190,7 @@ export function DataTable<T>({
                     {accent && (
                       <span
                         aria-hidden="true"
-                        className={cn("absolute inset-y-0 left-0 w-[3px]", accent)}
+                        className={cn("absolute inset-y-1.5 left-0 w-1 rounded-full", accent)}
                       />
                     )}
                     <Checkbox
@@ -206,7 +204,7 @@ export function DataTable<T>({
                   <td
                     key={c.key}
                     className={cn(
-                      "relative border-b border-border-subtle px-cell-x py-cell-y align-middle leading-tight text-ink-secondary group-hover:text-ink",
+                      "relative border-b border-border-subtle px-cell-x py-cell-y align-middle text-ink-secondary group-hover:text-ink",
                       c.align === "right" && "text-right tabular-nums",
                       c.className,
                     )}
@@ -214,7 +212,7 @@ export function DataTable<T>({
                     {!selectable && ci === 0 && accent && (
                       <span
                         aria-hidden="true"
-                        className={cn("absolute inset-y-0 left-0 w-[3px]", accent)}
+                        className={cn("absolute inset-y-1.5 left-0 w-1 rounded-full", accent)}
                       />
                     )}
                     {c.render(row)}

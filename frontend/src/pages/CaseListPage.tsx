@@ -15,7 +15,6 @@ import { RiskScore } from "../components/ui/RiskScore";
 import { Button } from "../components/ui/Button";
 import { Page, PageBody, PageHeader } from "../components/ui/Page";
 import { readFilterState, toCaseQuery } from "../lib/caseFilters";
-import { riskBand, RISK_BAR_BG } from "../lib/risk";
 import { relativeTime } from "../lib/format";
 
 export function CaseListPage() {
@@ -117,19 +116,23 @@ export function CaseListPage() {
 
   return (
     <Page>
-      <PageHeader title="Cases">
-        <span className="font-mono text-xs tabular-nums text-ink-tertiary">
+      <PageHeader
+        title="Cases"
+        description="Triage, assign and work linked alert cases."
+        breadcrumbs={[{ label: "Home", to: "/cases" }, { label: "Cases" }]}
+      >
+        <span className="text-xs tabular-nums text-ink-tertiary">
           {rows.length}
-          {casesQuery.hasNextPage ? "+" : ""}
+          {casesQuery.hasNextPage ? "+" : ""} shown
         </span>
         {casesQuery.isFetching && (
-          <span className="text-2xs uppercase tracking-wider text-ink-tertiary" aria-live="polite">
-            Loading
+          <span className="text-xs text-ink-tertiary" aria-live="polite">
+            Loading…
           </span>
         )}
       </PageHeader>
 
-      <PageBody className="flex flex-col gap-2">
+      <PageBody className="flex flex-col gap-3">
         <CasesSummary query={query} />
         <CaseFilters users={users} />
 
@@ -158,7 +161,6 @@ export function CaseListPage() {
             rows={rows}
             rowKey={(r) => r.id}
             rowHref={(r) => `/cases/${r.id}`}
-            rowAccent={(r) => RISK_BAR_BG[riskBand(r.risk_score)]}
             selectable
             selected={selected}
             onToggleRow={toggleRow}

@@ -35,11 +35,16 @@ export function LoginPage() {
     <div className="evidence-grid relative flex min-h-screen items-center justify-center px-4 text-ink">
       <form
         onSubmit={onSubmit}
-        className="u-enter-soft w-full max-w-sm space-y-5 rounded-lg border border-border border-t-2 border-t-accent bg-surface p-6 shadow-md"
+        className="u-enter-soft w-full max-w-sm space-y-5 rounded-2xl border border-border bg-surface p-7 shadow-lg"
       >
-        <div className="space-y-1">
-          <h1 className="font-mono text-sm font-bold uppercase tracking-[0.22em] text-ink">ACMS</h1>
-          <p className="text-xs text-ink-tertiary">Investigator console — sign in</p>
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-fg">
+            A
+          </span>
+          <div>
+            <h1 className="text-sm font-semibold text-ink">ACMS</h1>
+            <p className="text-xs text-ink-tertiary">Investigator console</p>
+          </div>
         </div>
 
         <label className="block">

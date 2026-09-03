@@ -29,8 +29,8 @@ const TAB_LABEL: Record<Tab, string> = {
 function Stat({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex flex-col gap-0.5">
-      <dt className="text-2xs font-semibold uppercase tracking-wider text-ink-tertiary">{label}</dt>
-      <dd className="text-xs text-ink">{value}</dd>
+      <dt className="text-xs font-medium text-ink-tertiary">{label}</dt>
+      <dd className="text-sm text-ink">{value}</dd>
     </div>
   );
 }
@@ -94,38 +94,43 @@ export function CaseDetailPage() {
 
   return (
     <Page>
-      <PageHeader title={<span className="font-mono tracking-tight">{c.human_ref}</span>}>
+      <PageHeader
+        title={<span className="font-mono tracking-tight">{c.human_ref}</span>}
+        breadcrumbs={[
+          { label: "Home", to: "/cases" },
+          { label: "Cases", to: "/cases" },
+          { label: c.human_ref },
+        ]}
+      >
         <StatusBadge status={c.status} />
         {c.disposition && (
-          <span className="rounded-sm bg-surface-sunken px-2 py-0.5 text-2xs font-medium uppercase tracking-wide text-ink-secondary">
+          <span className="rounded-full bg-surface-sunken px-2.5 py-0.5 text-xs font-medium text-ink-secondary">
             {c.disposition}
           </span>
         )}
       </PageHeader>
 
-      <div className="flex min-h-0 flex-1">
-        <aside className="flex w-[19rem] shrink-0 flex-col gap-4 overflow-y-auto border-r border-border p-4">
-          <div className="flex items-center justify-between">
-            <RiskScore score={c.risk_score} size="md" />
-            {c.version != null && (
-              <span className="font-mono text-2xs text-ink-tertiary">v{c.version}</span>
-            )}
+      <div className="flex min-h-0 flex-1 bg-surface-sunken">
+        <aside className="flex w-[20rem] shrink-0 flex-col gap-3 overflow-y-auto p-4">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-xs">
+            <div className="flex items-center justify-between">
+              <RiskScore score={c.risk_score} size="md" />
+              {c.version != null && (
+                <span className="text-xs text-ink-tertiary">v{c.version}</span>
+              )}
+            </div>
+            <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3">
+              <Stat
+                label="Assignee"
+                value={c.assignee_email ?? (c.assignee_id ? "Assigned" : "Unassigned")}
+              />
+              <Stat label="Alerts" value={<span className="tabular-nums">{c.alert_count}</span>} />
+              <Stat label="Age" value={relativeTime(c.created_at)} />
+              {c.closed_at && <Stat label="Closed" value={relativeTime(c.closed_at)} />}
+            </dl>
           </div>
 
-          <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
-            <Stat
-              label="Assignee"
-              value={c.assignee_email ?? (c.assignee_id ? "Assigned" : "Unassigned")}
-            />
-            <Stat
-              label="Alerts"
-              value={<span className="font-mono tabular-nums">{c.alert_count}</span>}
-            />
-            <Stat label="Age" value={relativeTime(c.created_at)} />
-            {c.closed_at && <Stat label="Closed" value={relativeTime(c.closed_at)} />}
-          </dl>
-
-          <div className="border-t border-border-subtle pt-3">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-xs">
             <ActionToolbar
               caseId={c.id}
               status={c.status}
@@ -136,46 +141,48 @@ export function CaseDetailPage() {
             />
           </div>
 
-          <div className="border-t border-border-subtle pt-3">
+          <div className="rounded-2xl border border-border bg-surface p-4 shadow-xs">
             <StatusHistory timeline={c.timeline} />
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col">
-          <nav
-            className="flex shrink-0 gap-1 border-b border-border px-4"
-            aria-label="Case detail sections"
-          >
-            {TABS.map((t) => {
-              const active = tab === t;
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  aria-current={active ? "page" : undefined}
-                  onClick={() => setTab(t)}
-                  className={cn(
-                    "relative min-h-control px-3 text-sm font-medium transition-colors duration-2",
-                    active ? "text-accent" : "text-ink-tertiary hover:text-ink",
-                  )}
-                >
-                  {TAB_LABEL[t]}
-                  {active && (
-                    <span
-                      aria-hidden="true"
-                      className="tab-underline absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[var(--tab-indicator)]"
-                    />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
+        <div className="flex min-w-0 flex-1 flex-col p-4 pl-0">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-xs">
+            <nav
+              className="flex shrink-0 gap-1 border-b border-border px-4"
+              aria-label="Case detail sections"
+            >
+              {TABS.map((t) => {
+                const active = tab === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    aria-current={active ? "page" : undefined}
+                    onClick={() => setTab(t)}
+                    className={cn(
+                      "relative min-h-control px-3 text-sm font-medium transition-colors duration-2",
+                      active ? "text-ink" : "text-ink-tertiary hover:text-ink",
+                    )}
+                  >
+                    {TAB_LABEL[t]}
+                    {active && (
+                      <span
+                        aria-hidden="true"
+                        className="tab-underline absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[var(--tab-indicator)]"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
 
-          <div className="min-h-0 flex-1 overflow-y-auto p-4">
-            {tab === "alerts" && <AlertsTable alerts={c.alerts} />}
-            {tab === "timeline" && <Timeline entries={c.timeline} />}
-            {tab === "notes" && <NotesThread caseId={c.id} notes={c.notes} />}
-            {tab === "audit" && <AuditTable caseId={c.id} entries={c.timeline} />}
+            <div className="min-h-0 flex-1 overflow-y-auto p-4">
+              {tab === "alerts" && <AlertsTable alerts={c.alerts} />}
+              {tab === "timeline" && <Timeline entries={c.timeline} />}
+              {tab === "notes" && <NotesThread caseId={c.id} notes={c.notes} />}
+              {tab === "audit" && <AuditTable caseId={c.id} entries={c.timeline} />}
+            </div>
           </div>
         </div>
       </div>

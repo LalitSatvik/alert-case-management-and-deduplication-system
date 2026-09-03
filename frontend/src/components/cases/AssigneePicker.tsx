@@ -51,7 +51,7 @@ export function AssigneePicker({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger className={buttonClass("default", "sm")}>
-        <span className="text-2xs uppercase tracking-wider text-ink-tertiary">Assignee</span>
+        <span className="text-xs font-medium text-ink-tertiary">Assignee</span>
         <span className="ml-1.5 max-w-[10rem] truncate">{resolvedLabel}</span>
       </PopoverTrigger>
       <PopoverContent className="w-64 p-1.5">

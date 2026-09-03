@@ -68,7 +68,7 @@ export function BulkActionBar({
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-md border border-accent-border bg-accent-subtle px-3 py-2">
       <span className="font-mono text-sm font-semibold tabular-nums text-ink">{selected.length}</span>
-      <span className="text-2xs uppercase tracking-wider text-ink-secondary">selected</span>
+      <span className="text-xs font-medium text-ink-secondary">selected</span>
 
       <span className="mx-1 h-4 w-px bg-border" />
 

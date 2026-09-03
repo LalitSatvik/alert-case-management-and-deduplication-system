@@ -30,7 +30,7 @@ it("shows grouping rationale and hides mutations for readonly", async () => {
   vi.spyOn(auth, "useAuth").mockReturnValue({ token: "t", principal: { email: "r@b.c", roles: ["readonly"] }, hasRole: (r: string) => r === "readonly" } as any);
   global.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify(CASE), { status: 200 }));
   render(wrap());
-  await waitFor(() => expect(screen.getByText("CASE-1")).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByRole("heading", { name: "CASE-1" })).toBeInTheDocument());
   expect(screen.getByText("Deterministic")).toBeInTheDocument();
   expect(screen.getByText(/0\.81/)).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /move to in progress/i })).not.toBeInTheDocument();
@@ -40,7 +40,7 @@ it("offers legal transitions for an analyst", async () => {
   vi.spyOn(auth, "useAuth").mockReturnValue({ token: "t", principal: { email: "a@b.c", roles: ["analyst"] }, hasRole: () => true } as any);
   global.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify(CASE), { status: 200 }));
   render(wrap());
-  await waitFor(() => expect(screen.getByText("CASE-1")).toBeInTheDocument());
+  await waitFor(() => expect(screen.getByRole("heading", { name: "CASE-1" })).toBeInTheDocument());
   expect(screen.getByRole("button", { name: /move to in progress/i })).toBeInTheDocument();
   expect(screen.queryByRole("button", { name: /close/i })).not.toBeInTheDocument(); // Closed not legal from Open
 });

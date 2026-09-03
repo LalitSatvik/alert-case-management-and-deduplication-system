@@ -40,7 +40,7 @@ export function AuditTable({ caseId, entries }: { caseId: string; entries: Timel
   const pill = CHAIN[chain];
   const sorted = [...(entries ?? [])].sort((a, b) => (a.seq ?? 0) - (b.seq ?? 0));
   const th =
-    "sticky top-0 z-10 border-b border-border bg-surface-sunken px-cell-x py-cell-y text-left text-2xs font-semibold uppercase tracking-wider text-ink-tertiary";
+    "sticky top-0 z-10 border-b border-border bg-surface px-cell-x py-cell-y text-left text-xs font-medium text-ink-tertiary";
   const td = "border-b border-border-subtle px-cell-x py-cell-y align-top";
 
   return (
@@ -65,7 +65,7 @@ export function AuditTable({ caseId, entries }: { caseId: string; entries: Timel
         </p>
       )}
 
-      <div className="overflow-x-auto rounded-md border border-border bg-surface">
+      <div className="overflow-x-auto rounded-2xl border border-border bg-surface shadow-xs">
         <table className="min-w-full border-separate border-spacing-0 text-table">
           <thead>
             <tr>

@@ -7,7 +7,7 @@ export const PopoverTrigger = RadixPopover.Trigger;
 export const PopoverAnchor = RadixPopover.Anchor;
 
 const CONTENT =
-  "pop-surface z-50 rounded-md border border-border bg-surface-raised p-3 shadow-md " +
+  "pop-surface z-50 rounded-xl border border-border bg-surface-raised p-3 shadow-lg " +
   "focus-visible:outline-none";
 
 export function PopoverContent({

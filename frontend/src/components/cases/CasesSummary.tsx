@@ -1,72 +1,82 @@
 import { useQuery } from "@tanstack/react-query";
 import { getCaseStats, type CaseQuery } from "../../api/cases";
 import { useAuth } from "../../auth/AuthContext";
-import { cn } from "../ui/cn";
+import { StatCard } from "../ui/StatCard";
 
-function Chip({
-  label,
-  value,
-  emphasis,
-}: {
-  label: string;
-  value: string | number;
-  emphasis?: "danger" | "warn";
-}) {
+function LayersIcon() {
   return (
-    <div className="flex items-baseline gap-1.5 whitespace-nowrap">
-      <span
-        className={cn(
-          "font-mono text-sm font-semibold tabular-nums",
-          emphasis === "danger" ? "text-risk-crit-fg" : emphasis === "warn" ? "text-risk-elev-fg" : "text-ink",
-        )}
-      >
-        {value}
-      </span>
-      <span className="text-2xs font-medium uppercase tracking-wider text-ink-tertiary">{label}</span>
-    </div>
+    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M10 3 3 6.5 10 10l7-3.5L10 3Z" strokeLinejoin="round" />
+      <path d="M3 10.5 10 14l7-3.5M3 13.5 10 17l7-3.5" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function GaugeIcon() {
+  return (
+    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M4 15a7 7 0 1 1 12 0" strokeLinecap="round" />
+      <path d="M10 10l3-3" strokeLinecap="round" />
+    </svg>
+  );
+}
+function FlagIcon() {
+  return (
+    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <path d="M5 3v14M5 4h9l-2 3 2 3H5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function UserIcon() {
+  return (
+    <svg viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
+      <circle cx="10" cy="7" r="3" />
+      <path d="M4.5 16a5.5 5.5 0 0 1 11 0" strokeLinecap="round" />
+    </svg>
   );
 }
 
 export function CasesSummary({ query }: { query: CaseQuery }) {
   const { token } = useAuth();
-  // Same filter set as the list, minus paging — the strip describes the whole result.
   const { status, disposition, assignee_id, risk_min, risk_max, source_system, typology, created_from, created_to, q } =
     query;
+  const key = { status, disposition, assignee_id, risk_min, risk_max, source_system, typology, created_from, created_to, q };
   const statsQuery = useQuery({
-    queryKey: [
-      "caseStats",
-      { status, disposition, assignee_id, risk_min, risk_max, source_system, typology, created_from, created_to, q },
-    ],
-    queryFn: () =>
-      getCaseStats(
-        { status, disposition, assignee_id, risk_min, risk_max, source_system, typology, created_from, created_to, q },
-        token,
-      ),
+    queryKey: ["caseStats", key],
+    queryFn: () => getCaseStats(key, token),
     retry: false,
   });
-
   const s = statsQuery.data;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-5 gap-y-1.5 rounded-md border border-border bg-surface-sunken px-3 py-2">
-      {s ? (
-        <>
-          <Chip label="cases" value={s.total} />
-          <Chip label="open" value={s.by_status["Open"] ?? 0} />
-          <Chip label="in progress" value={s.by_status["In Progress"] ?? 0} />
-          <Chip label="avg risk" value={s.avg_risk} emphasis={s.avg_risk >= 60 ? "warn" : undefined} />
-          <Chip
-            label={`≥${s.high_risk_threshold}`}
-            value={s.high_risk}
-            emphasis={s.high_risk > 0 ? "danger" : undefined}
-          />
-          <Chip label="unassigned" value={s.unassigned} />
-        </>
-      ) : (
-        <span className="text-2xs uppercase tracking-wider text-ink-tertiary">
-          {statsQuery.isError ? "Summary unavailable" : "Loading summary…"}
-        </span>
-      )}
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <StatCard
+        icon={<LayersIcon />}
+        label="Open cases"
+        value={s ? (s.by_status["Open"] ?? 0) : "—"}
+        seed={1}
+        tone="info"
+      />
+      <StatCard
+        icon={<GaugeIcon />}
+        label="Average risk"
+        value={s ? s.avg_risk : "—"}
+        seed={4}
+        tone={s && s.avg_risk >= 60 ? "danger" : "accent"}
+      />
+      <StatCard
+        icon={<FlagIcon />}
+        label={s ? `Risk ≥ ${s.high_risk_threshold}` : "High risk"}
+        value={s ? s.high_risk : "—"}
+        seed={7}
+        tone="danger"
+      />
+      <StatCard
+        icon={<UserIcon />}
+        label="Unassigned"
+        value={s ? s.unassigned : "—"}
+        seed={2}
+        tone="accent"
+      />
     </div>
   );
 }
