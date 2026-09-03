@@ -93,6 +93,8 @@ Known advisories in the current dependency set and why they are accepted for now
 
 ## Licence
 
+This project is released under the MIT Licence — see [`LICENSE`](LICENSE).
+
 Every component on the critical path is permissively licensed — PostgreSQL
 (PostgreSQL licence), Valkey (BSD-3-Clause), Caddy (Apache-2.0), FastAPI /
 SQLAlchemy / React / Vite (MIT/BSD). Object storage is a Phase 2 feature; the
