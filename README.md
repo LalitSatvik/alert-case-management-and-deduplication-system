@@ -18,9 +18,9 @@ Valkey for bulk grouping, a React/Vite SPA, and a Caddy proxy in front — see
 
 ## Screenshots
 
-| Case list | Case detail — grouping rationale |
+| Cases dashboard | Case detail — Alerts tab |
 |---|---|
-| ![Case list](docs/screenshots/02-case-list.png) | ![Case detail, Alerts tab](docs/screenshots/04-case-detail-alerts.png) |
+| ![Cases dashboard](docs/screenshots/02-case-list.png) | ![Case detail, Alerts tab](docs/screenshots/04-case-detail-alerts.png) |
 | **Audit trail** | **Read-only analyst** |
 | ![Audit tab](docs/screenshots/07-case-detail-audit.png) | ![Read-only view with mutating controls hidden](docs/screenshots/08-case-detail-readonly.png) |
 
